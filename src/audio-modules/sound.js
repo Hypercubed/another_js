@@ -35,27 +35,27 @@ export class SfxPlayer {
     _modifyVarCallback = null
 
     constructor(modifyVarCallback) {
-        console.log('SfxPlayer::contructor')
+        // console.log('SfxPlayer::contructor')
 		this._audioContext = new window.AudioContext()
 		this.resumeAudio()
         this._modifyVarCallback = modifyVarCallback
     }
 
     async init() {
-        console.log('SfxPlayer::init')
+        // console.log('SfxPlayer::init')
         await this.initAudio()
         this.initEvents()
     }
 
     async initAudio() {
         try {
-            console.log('SfxPlayer::initAudio')
+            // console.log('SfxPlayer::initAudio')
             this._rate = this._audioContext.sampleRate
     
-            console.log('Adding module processors')
+            // console.log('Adding module processors')
             await this._audioContext.audioWorklet.addModule('processors.js')
 
-            console.log('Creating worklet raw')
+            // console.log('Creating worklet raw')
             this._sfxRawWorklet = new AudioWorkletNode(this._audioContext, 'sfxraw-processor', {
                 outputChannelCount: [1],
                 numberOfInputs: 0,
@@ -65,7 +65,7 @@ export class SfxPlayer {
             this._sfxRawWorklet.port.onmessage = this.onSFXRawProcessorMessage.bind(this)
             this._sfxRawWorklet.port.start()
 
-            console.log('Creating worklet sfxplayer')
+            // console.log('Creating worklet sfxplayer')
             this._sfxPlayerWorklet = new AudioWorkletNode(this._audioContext, 'sfxplayer-processor', {
                 outputChannelCount: [2],
                 numberOfInputs: 0,
@@ -149,7 +149,7 @@ export class SfxPlayer {
             this._sfxMod = CreateSfxMod()
             this._sfxMod.curOrder = pos
             this._sfxMod.numOrder = read_be_uint16(buf, 0x3E)
-            console.log(`SfxPlayer::loadSfxModule() curOrder = 0x${this._sfxMod.curOrder.toString(16)} numOrder = 0x${this._sfxMod.numOrder.toString(16)}`)
+            // console.log(`SfxPlayer::loadSfxModule() curOrder = 0x${this._sfxMod.curOrder.toString(16)} numOrder = 0x${this._sfxMod.numOrder.toString(16)}`)
             for (let i = 0; i < 0x80; ++i) {
                 this._sfxMod.orderTable[i] = buf[0x40 + i]
             }
@@ -160,7 +160,7 @@ export class SfxPlayer {
             
             this.setEventsDelay(delay)
             this._sfxMod.data = new Uint8Array(buf.buffer,  0xC0)
-            console.log(`SfxPlayer::loadSfxModule() eventDelay = ${this._delay} ms`)
+            // console.log(`SfxPlayer::loadSfxModule() eventDelay = ${this._delay} ms`)
             this.prepareInstruments(new Uint8Array(buf.buffer, 2), res.sounds)
             this.postMessageToSFXPlayerProcessor({
                 message: 'load',
@@ -177,14 +177,14 @@ export class SfxPlayer {
         for (let i = 0; i < 15; ++i) {
             const ins = this._sfxMod.samples[i]
             const resNum = read_be_uint16(p, offset)
-            console.log(`prepareInstruments() resNum=${resNum}`)
+            // console.log(`prepareInstruments() resNum=${resNum}`)
             offset += 2
             if (resNum !== 0) {
                 ins.volume = read_be_uint16(p, offset)
                 const mem = sounds[resNum]
                 if (mem && mem[2]) {
                     ins.data = mem[2]
-                    console.log(`Loaded instrument 0x${resNum.toString(16)} n=${i} volume=${ins.volume} -> [${ins.data[0].toString(16)}, ${ins.data[1].toString(16)}, ${ins.data[2].toString(16)}]`)
+                    // console.log(`Loaded instrument 0x${resNum.toString(16)} n=${i} volume=${ins.volume} -> [${ins.data[0].toString(16)}, ${ins.data[1].toString(16)}, ${ins.data[2].toString(16)}]`)
                 } else {
                     console.error(`Error loading instrument 0x${resNum.toString(16)}`)
                 }

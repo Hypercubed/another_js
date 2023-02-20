@@ -1,4 +1,8 @@
 node_modules/
 dist/
 dump/
-bytekiller_unpack.so
+zips/
+src/data/ootw.js
+scripts/bytekiller_unpack.so
+
+.vscode/

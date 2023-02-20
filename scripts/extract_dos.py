@@ -70,18 +70,36 @@ def unpack(i, r):
 for i, r in enumerate(resources):
 	if r.uncompressed == 0 or not banks.has_key(r.bank):
 		continue
-	if r.rtype in (TYPE_SND, TYPE_MOD):
-		continue
+	# if r.rtype in (TYPE_SND, TYPE_MOD):
+	# 	continue
 	buf = unpack(i, r)
 	buf = zlib.compress(buf, 9)
-	print 'const data%02x = "%s";' % (i, base64.b64encode(buf))
-	print 'const size%02x = %d;' % (i, r.uncompressed);
+	print 'export const data%02x = "%s";' % (i, base64.b64encode(buf))
+	print 'export const size%02x = %d;' % (i, r.uncompressed);
 
-print 'const bitmaps = {'
+print 'export const bitmaps = {'
 for i, r in enumerate(resources):
 	if r.uncompressed == 0 or not banks.has_key(r.bank):
 		continue
 	if r.rtype != TYPE_BMP:
+		continue
+	print '\t%3d : [ data%02x, size%02x ],' % (i, i, i)
+print '};'
+
+print 'export const sounds = {'
+for i, r in enumerate(resources):
+	if r.uncompressed == 0 or not banks.has_key(r.bank):
+		continue
+	if r.rtype != TYPE_SND:
+		continue
+	print '\t%3d : [ data%02x, size%02x ],' % (i, i, i)
+print '};'
+
+print 'export const modules = {'
+for i, r in enumerate(resources):
+	if r.uncompressed == 0 or not banks.has_key(r.bank):
+		continue
+	if r.rtype != TYPE_MOD:
 		continue
 	print '\t%3d : [ data%02x, size%02x ],' % (i, i, i)
 print '};'

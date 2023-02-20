@@ -1,7 +1,8 @@
-import * as Res from './ootwdemo-data'
-import { SfxPlayer } from './sound'
-import { decompressSync } from 'fflate'
+import { decompressSync } from 'fflate';
 import nipplejs from 'nipplejs';
+
+import * as Res from './data/'
+import { SfxPlayer } from './audio-modules/sound'
 import './main.css'
 
 const KEY_UP     = 1;
@@ -9,6 +10,7 @@ const KEY_RIGHT  = 2;
 const KEY_DOWN   = 3;
 const KEY_LEFT   = 4;
 const KEY_ACTION = 5;
+
 const IS_IOS = [
     'iPad Simulator',
     'iPhone Simulator',
@@ -40,8 +42,13 @@ function onPaletteChange( e ) {
     change_palette( e.currentTarget.selectedIndex );
 }
 function onPartChange( e ) {
-    change_part( e.currentTarget.selectedIndex );
+    change_part( +e.target.value );
 }
+
+function onPasswordScreen() {
+	password_screen();
+}
+
 function onLowResolutionClick( e ) {
     set_1991_resolution( e.currentTarget.checked );
 }
@@ -60,7 +67,7 @@ function getFullscreenSize() {
 		newHeight = newWidth / gameRatio
 	}
 
-	console.log('getFullscreenSize', { width, height, newWidth, newHeight, ratio, gameRatio })
+	// console.log('getFullscreenSize', { width, height, newWidth, newHeight, ratio, gameRatio })
 
 	return {
 		canvasWidth: newWidth,
@@ -73,7 +80,7 @@ function getFullscreenSize() {
 }
 
 function onFullscreenChange(isFullscreen) {
-	console.log('onFullscreenChange', isFullscreen)
+	// console.log('onFullscreenChange', isFullscreen)
 	if (isFullscreen) {
 		const {
 			width,
@@ -122,11 +129,12 @@ function bind_events() {
 	pauseButton.onclick = onPauseClick
 	resetButton.onclick = onResetClick
 	rewindButton.onclick = onRewindClick
+	passwordButton.onclick = onPasswordScreen
 	languageSelect.onchange = onLanguageChange
 	paletteSelect.onchange = onPaletteChange
 	partSelect.onchange = onPartChange
 	resolutionCheckbox.onclick = onLowResolutionClick
-	console.log('is_ios', IS_IOS)
+	// console.log('is_ios', IS_IOS)
 	const mql = window.matchMedia("(orientation: portrait)");
 	// resize window size on orientation
 	mql.onchange = function() {
@@ -134,6 +142,7 @@ function bind_events() {
 			onFullscreenChange(true)
 		}
 	}
+
 	if (!IS_IOS) {
 		document.onfullscreenchange = document.onwebkitfullscreenchange = () => {
 			if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -174,7 +183,7 @@ function bind_events() {
 
 	touch_manager = nipplejs.create({
 		zone: document.getElementsByClassName('square')[0],
-		mode: 'static',
+		// mode: 'static',
 		position: {
 			left: '50%',
 			top: '50%'
@@ -245,34 +254,72 @@ function bind_events() {
 	})
 }
 
+let gamepadState = new Array( 6 );
+
+function buttonPressed(b) {
+  if (typeof b === "object") {
+    return b.pressed;
+  }
+  return b === 1.0;
+}
+
+function pollGamepads(actions = false) {
+	const gamepads = navigator.getGamepads();
+  if (!gamepads) {
+    return;
+  }
+
+	const gamepad = gamepads[0];
+
+	if (gamepad) {
+		if (actions && buttonPressed(gamepad.buttons[8]) || buttonPressed(gamepad.buttons[9]) || buttonPressed(gamepad.buttons[16])) {
+			password_screen();
+			return true;
+		}
+
+		if (actions && buttonPressed(gamepad.buttons[4]) || buttonPressed(gamepad.buttons[6])) {
+			setTimeout(( )=> {
+				onRewindClick();
+			});
+			return true;
+		}
+
+		gamepadState[ KEY_UP ] = buttonPressed(gamepad.buttons[12]) || gamepad.axes[1] < -0.5;
+		gamepadState[ KEY_DOWN ] = buttonPressed(gamepad.buttons[13]) || gamepad.axes[1] > 0.5;
+		gamepadState[ KEY_LEFT ] = buttonPressed(gamepad.buttons[14]) || gamepad.axes[0] < -0.5;
+		gamepadState[ KEY_RIGHT ] = buttonPressed(gamepad.buttons[15]) || gamepad.axes[0] > 0.5;
+		gamepadState[ KEY_ACTION ] = buttonPressed(gamepad.buttons[0]);
+	}
+}
+
 let keyboard = new Array( 6 );
 
 function is_key_pressed( code ) {
-	return keyboard[ code ];
+	return keyboard[ code ] || gamepadState[ code ];
 }
 
 function set_key_pressed( e, state ) {
-	const jcode = e.keyCode
+	const {keyCode} = e
 
-	if ( jcode == 37 ) {
+	// console.log(keyCode);
+
+	if ( keyCode == 37 || keyCode == 27) {
 		e.preventDefault();
 		keyboard[ KEY_LEFT ] = state;
-	} else if ( jcode == 38 ) {
+	} else if ( keyCode == 38 ) {
 		e.preventDefault();
 		keyboard[ KEY_UP ] = state;
-	} else if ( jcode == 39 ) {
+	} else if ( keyCode == 39 ) {
 		e.preventDefault();
 		keyboard[ KEY_RIGHT ] = state;
-	} else if ( jcode == 40 ) {
+	} else if ( keyCode == 40 ) {
 		e.preventDefault();
 		keyboard[ KEY_DOWN ] = state;
-	} else if ( jcode == 32 || jcode == 13 ) {
+	} else if ( keyCode == 32 || keyCode == 13 ) {
 		e.preventDefault();
-		if (!next_part && current_part !== 16002) {
-			change_part(1)
-		} else {
-			keyboard[ KEY_ACTION ] = state;
-		}
+		keyboard[ KEY_ACTION ] = state;
+	} else if ( keyCode == 67 ) {
+		password_screen();
 	}
 }
 
@@ -357,11 +404,10 @@ let opcodes = {
 		const imm = to_signed( read_word( ), 16 );
 		vars[ num ] += imm;
 		// gun sound workaround to do
-		if (current_part === 16006) {
-			debugger
-			// snd_playSound(0x5B, 1, 64, 1);
-		}
-
+		// if (current_part === 16006) {
+		// 	debugger
+		// 	// snd_playSound(0x5B, 1, 64, 1);
+		// }
 	},
 	0x04 : function( ) { // call
 		const addr = read_word( );
@@ -538,7 +584,7 @@ let opcodes = {
 		const num      = read_word( );
 		const period   = read_word( );
 		const position = read_byte( );
-		console.log(`Script::op_playMusic(0x${num.toString(16)}, ${period}, ${position})`)
+		// console.log(`Script::op_playMusic(0x${num.toString(16)}, ${period}, ${position})`)
 		play_music(num, period, position)
 	}
 };
@@ -601,6 +647,8 @@ function execute_task( ) {
 }
 
 function update_input( ) {
+	pollGamepads();
+
 	let mask = 0;
 	if ( is_key_pressed( KEY_RIGHT ) ) {
 		vars[ VAR_HERO_POS_LEFT_RIGHT ] = 1;
@@ -664,6 +712,8 @@ function run_tasks( ) {
 }
 
 function load( data, size ) {
+	if ( !data ) return null;
+
 	data = atob( data );
 	if ( data.length != size ) {
 		let len = data.length;
@@ -676,6 +726,7 @@ function load( data, size ) {
 		console.assert( buf.length == size );
 		return buf;
 	}
+
 	let buf = new Uint8Array( size );
 	for ( let i = 0; i < data.length; ++i ) {
 		buf[ i ] = data.charCodeAt( i ) & 0xff;
@@ -684,53 +735,16 @@ function load( data, size ) {
 }
 
 function restart( part ) {
-	if ( part == 16000 ) { // protection
-		palette   = load( Res.data14, Res.size14 );
-		bytecode  = load( Res.data15, Res.size15 );
-		polygons1 = load( Res.data16, Res.size16 );
-		polygons2 = null;
-	} else if ( part == 16001 ) { // introduction
-		palette   = load( Res.data17, Res.size17 );
-		bytecode  = load( Res.data18, Res.size18 );
-		polygons1 = load( Res.data19, Res.size19 );
-		polygons2 = null;
-	} else if ( part == 16002 ) { // water
-		palette   = load( Res.data1a, Res.size1a );
-		bytecode  = load( Res.data1b, Res.size1b );
-		polygons1 = load( Res.data1c, Res.size1c );
-		polygons2 = load( Res.data11, Res.size11 );
+	const ResPart = Res.PARTS[part];
+	if ( !ResPart ) {
+		throw 'Part not found: ' + part;
 	}
-	// else if ( part == 16003 ) { // jail
-	// 	palette   = load( Res.data1d, Res.size1d );
-	// 	bytecode  = load( Res.data1e, Res.size1e );
-	// 	polygons1 = load( Res.data1f, Res.size1f );
-	// 	polygons2 = load( Res.data11, Res.size11 );
-	// } else if ( part == 16004 ) { // 'cite'
-	// 	palette   = load( Res.data20, Res.size20 );
-	// 	bytecode  = load( Res.data21, Res.size21 );
-	// 	polygons1 = load( Res.data22, Res.size22 );
-	// 	polygons2 = load( Res.data11, Res.size11 );
-	// } else if ( part == 16005 ) { // 'arene'
-	// 	palette   = load( Res.data23, Res.size23 );
-	// 	bytecode  = load( Res.data24, Res.size24 );
-	// 	polygons1 = load( Res.data25, Res.size25 );
-	// 	polygons2 = load( Res.data11, Res.size11 );
-	// } else if ( part == 16006 ) { // 'luxe'
-	// 	palette   = load( Res.data26, Res.size26 );
-	// 	bytecode  = load( Res.data27, Res.size27 );
-	// 	polygons1 = load( Res.data28, Res.size28 );
-	// 	polygons2 = load( Res.data11, Res.size11 );
-	// } else if ( part == 16007 ) { // 'final'
-	// 	palette   = load( Res.data29, Res.size29 );
-	// 	bytecode  = load( Res.data2a, Res.size2a );
-	// 	polygons1 = load( Res.data2b, Res.size2b );
-	// 	polygons2 = load( Res.data11, Res.size11 );
-	// } else if ( part == 16008 ) { // password screen
-	// 	palette   = load( Res.data7d, Res.size7d );
-	// 	bytecode  = load( Res.data7e, Res.size7e );
-	// 	polygons1 = load( Res.data7f, Res.size7f );
-	// 	polygons2 = null;
-	// }
+
+	palette   = load( ResPart[0],   ResPart[1]   );
+	bytecode  = load( ResPart[2],  ResPart[3]  );
+	polygons1 = load( ResPart[4],  ResPart[5] );
+	polygons2 = load( ResPart[6],  ResPart[7] );
+
 	for ( let i = 0; i < tasks.length; ++i ) {
 		tasks[ i ] = { state : 0, next_state : 0, offset : -1, next_offset : -1 };
 		tasks[ i ].stack = new Array( );
@@ -1116,7 +1130,7 @@ function reset( ) {
 	vars[ 0xf2 ] = 6000; // 4000 for Amiga bytecode
 	vars[ 0xdc ] = 33;
 	vars[ 0xe4 ] = 20;
-	next_part = 16001;
+	next_part = Res.isDemo ? 16001 : 16000;
 	timestamp = rewind_timestamp = Date.now( );
 	rewind_buffer.length = 0;
 	player.stopMusic();
@@ -1137,9 +1151,12 @@ function tick( ) {
 		rewind_buffer.push( save_state( ) );
 		rewind_timestamp = current;
 	}
+
+	pollGamepads(true);
 }
 
 const INTERVAL = 50;
+
 let canvas;
 let timer;
 let player;
@@ -1194,9 +1211,14 @@ function change_palette( num ) {
 }
 
 function change_part( num ) {
-	reset( );
-	next_part = 16001 + num;
-	// console.log( 'next_part:' + next_part );
+	next_part = 16000 + num;
+	restart( next_part );
+	current_part = next_part;
+	next_part = 0;
+}
+
+function password_screen() {
+	change_part(8);
 }
 
 function change_language( num ) {
