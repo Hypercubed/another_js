@@ -2,7 +2,7 @@ node_modules/
 dist/
 dump/
 zips/
-src/data/ootw.js
+src/data/ootw.*
 scripts/bytekiller_unpack.so
 
 .vscode/

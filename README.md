@@ -1,19 +1,18 @@
-
 # Another World JS
 
 This is a fork of [another_js](https://github.com/cyxx/another_js) written by [@cyxx](https://github.com/cyxx) which adds the following features:
 
-* sound & music support (using Audio Worklet)
-* touch controls
-* fullscreen support
-* fixes pause bug: resuming would skip time elapsed during pause
-* webpack build
+- sound & music support (using Audio Worklet)
+- touch controls
+- fullscreen support
+- fixes pause bug: resuming would skip time elapsed during pause
+- webpack build
 
 This is a Javascript (HTML5) port of the game <a href="https://www.mobygames.com/game/out-of-this-world">Another World</a> designed by <a href="http://www.anotherworld.fr/">Eric Chahi</a> with the following features:
 
-* switch between Amiga and EGA palettes
-* switch between the original 320x200 and 640x400 resolutions
-* rewind game play
+- switch between Amiga and EGA palettes
+- switch between the original 320x200 and 640x400 resolutions
+- rewind game play
 
 ![Screenshot Water](screenshot-640.png)
 

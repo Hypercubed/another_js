@@ -1,84 +1,85 @@
 body {
-    margin: 0px auto;
-    text-align: center;
-    padding: 0px 0px; 
-    width: 800px;
-    background: #e5e5e5;
-    font-family: Arial;
-    font-size: 14px;
+  margin: 0px auto;
+  text-align: center;
+  padding: 0px 0px;
+  width: 800px;
+  background: #e5e5e5;
+  font-family: Arial;
+  font-size: 14px;
 }
 
 div {
-    margin: 0 auto;
+  margin: 0 auto;
 }
 
 .main {
-    background-color: #fff;
-    padding-top: 10px;
-    width: 800px;
-    text-align: center;
+  background-color: #fff;
+  padding-top: 10px;
+  width: 800px;
+  text-align: center;
 }
 
 .intro {
-    width: 640px;
-    text-align: left;
+  width: 640px;
+  text-align: left;
 }
 
 footer {
-    background-color: #eeeeee;
-    margin: 20px 0px 0px 0px;
-    padding: 8px;
+  background-color: #eeeeee;
+  margin: 20px 0px 0px 0px;
+  padding: 8px;
 }
 
 #game {
-    display: none;
-    position: relative;
-    width: 640px;
+  display: none;
+  position: relative;
+  width: 640px;
 }
 
 #game:-webkit-full-screen {
-    width: 100% !important;
+  width: 100% !important;
 }
 #game:-moz-full-screen {
-    width: 100% !important;
+  width: 100% !important;
 }
 
 #game:-ms-fullscreen {
-    width: 100% !important;
+  width: 100% !important;
 }
 
 #game:fullscreen {
-    width: 100% !important;
+  width: 100% !important;
 }
 
-.square, .square2 {
-    position:absolute;
-    z-index: 1;
-    left: 10px;
-    bottom: 10px;
-    width: 100px;
-    height: 100px;
+.square,
+.square2 {
+  position: absolute;
+  z-index: 1;
+  left: 10px;
+  bottom: 10px;
+  width: 100px;
+  height: 100px;
 }
 
 .square2 {
-    left: auto;
-    right: 10px;
+  left: auto;
+  right: 10px;
 }
 
 #preload {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 #start {
-    position: absolute;
-    cursor: pointer;
-    background-color:rgba(255, 255, 255, .5);
-    color: white;
-    font-size: 5rem;
-    border: none;
-    left: 0;
-    right: 0;
-    width: 100%;    
-    top: calc(50% - 2.5rem);
+  position: absolute;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.5);
+  color: white;
+  font-size: 5rem;
+  border: none;
+  left: 0;
+  right: 0;
+  width: 100%;
+  top: calc(50% - 2.5rem);
 }
