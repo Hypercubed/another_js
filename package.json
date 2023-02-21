@@ -9,7 +9,8 @@
     "dev": "webpack",
     "serve": "http-server -c-1 ./dist",
     "deploy": "gh-pages -d dist -b gh-pages",
-    "build": "webpack --mode production --no-watch"
+    "build": "webpack --mode production --no-watch",
+    "fix": "prettier --write ."
   },
   "repository": {
     "type": "git",
