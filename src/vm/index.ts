@@ -17,6 +17,7 @@ import {
   KEY_CODE,
   pollGamepads,
 } from "./controls";
+import { DRAW_POLY_BACKGROUND, DRAW_POLY_SPRITE, OP_CODE, VAR } from "./vm";
 
 const STRINGS_LANGUAGE_EN = 0;
 const STRINGS_LANGUAGE_FR = 1;
@@ -51,21 +52,6 @@ let current_page0: number; // current
 let current_page1: number; // front
 let current_page2: number; // back
 let next_palette = -1;
-
-const enum VAR {
-  RANDOM_SEED = 0x3c,
-  LAST_KEYCHAR = 0xda,
-  HERO_POS_UP_DOWN = 0xe5,
-  SCROLL_Y = 0xf9,
-  HERO_ACTION = 0xfa,
-  HERO_POS_JUMP_DOWN = 0xfb,
-  HERO_POS_LEFT_RIGHT = 0xfc,
-  HERO_POS_MASK = 0xfd,
-  HERO_ACTION_POS_MASK = 0xfe,
-  PAUSE_SLICES = 0xff,
-  MUSIC_SYNC = 0xf4,
-  WTF = 0xf7
-}
 
 let vmVars = new Array(256);
 let vmTasks = new Array(64);
@@ -106,52 +92,6 @@ function to_signed(value: number, bits: number) {
   const mask = 1 << (bits - 1);
   return value - ((value & mask) << 1);
 }
-
-const enum OP_CODE {
-    /* 0x00 */
-    movConst,
-    mov,
-    add,
-    addConst,
-
-    /* 0x04 */
-    call,
-    ret,
-    pauseThread,
-    jmp,
-
-    /* 0x08 */
-    setSetVect,
-    jnz,
-    condJmp,
-    setPalette,
-
-    /* 0x0C */
-    resetThread,
-    selectVideoPage,
-    fillVideoPage,
-    copyVideoPage,
-
-    /* 0x10 */
-    blitFramebuffer,
-    killThread,
-    drawString,
-    sub,
-
-    /* 0x14 */
-    and,
-    or,
-    shl,
-    shr,
-
-    /* 0x18 */
-    playSound,
-    updateMemList,
-    playMusic
-}
-
-const DRAW_POLY_BACKGROUND = 0x80;
-const DRAW_POLY_SPRITE = 0x40;
 
 const vm = {
   [OP_CODE.movConst]() {
@@ -852,6 +792,7 @@ function load_state(state: any) {
   palette32 = state.palette32;
 }
 
+// METHODS
 export function reset() {
   current_page2 = 1;
   current_page1 = 2;
@@ -875,7 +816,7 @@ export function reset() {
   player.stopMusic();
 }
 
-function tick() {
+export function tick() {
   clearTimeout(timer);
 
   const current = Date.now();
@@ -898,7 +839,6 @@ function tick() {
   }, INTERVAL) as unknown as number;
 }
 
-// METHODS
 export function pause() {
   if (timer) {
     clearTimeout(timer);

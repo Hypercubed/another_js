@@ -2,10 +2,12 @@ import { decompressSync } from "fflate";
 
 export { strings_en, strings_fr, font } from "./strings";
 
+type Resource = Record<number, [string, number]>;
+
 interface Data {
-  bitmaps: Record<number, [string, number]>;
-  sounds: Record<number, [string, number]>;
-  modules: Record<number, [string, number]>;
+  bitmaps: Resource;
+  sounds: Resource;
+  modules: Resource;
 }
 
 interface Parts {
@@ -17,7 +19,8 @@ let PARTS: Parts = null;
 let DATA: Data = null;
 
 try {
-  const RES = require("./ootw");
+  /* @ts-ignore */
+  const RES = await import(/* webpackIgnore: true */ "./ootw.js");
   isDemo = false;
 
   PARTS = {
@@ -114,13 +117,14 @@ try {
   };
 
   DATA = {
-    bitmaps: RES.bitmaps,
-    sounds: RES.sounds,
-    modules: RES.modules,
+    bitmaps: RES.bitmaps as unknown as Resource,
+    sounds: RES.sounds as unknown as Resource,
+    modules: RES.modules as unknown as Resource,
   };
 
 } catch (e) {
-  const RES = require("./ootw-demo");
+  /* @ts-ignore */
+  const RES = await import(/* webpackIgnore: true */ "./ootw-demo.js");
 
   PARTS = {
     16001: [
@@ -146,9 +150,9 @@ try {
   };
 
   DATA = {
-    bitmaps: RES.bitmaps,
-    sounds: RES.sounds,
-    modules: RES.modules,
+    bitmaps: RES.bitmaps as unknown as Resource,
+    sounds: RES.sounds as unknown as Resource,
+    modules: RES.modules as unknown as Resource,
   };
 }
 

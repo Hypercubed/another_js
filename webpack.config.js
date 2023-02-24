@@ -6,13 +6,13 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
   mode: "development",
   watch: true,
+  target: "browserslist",
   entry: {
     main: path.resolve(__dirname, "./src/index.ts"),
-    data: path.resolve(__dirname, "./src/resources/index.ts"),
   },
   output: {
     path: path.resolve(__dirname, "./dist"),
-    filename: "[name].bundle.js",
+    filename: "index.js",
   },
   module: {
     rules: [
@@ -24,7 +24,7 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: ["babel-loader"],
+        use: "ts-loader",
       },
       {
         test: /\.(scss|css)$/,
@@ -44,10 +44,15 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "src/sound/processors.js", to: "." },
+        { from: "data/ootw.js", to: "." },
+        { from: "data/ootw-demo.js", to: "." },
         { from: "*.png", to: "." },
         { from: "*.jpg", to: "." },
       ],
     }),
     new CleanWebpackPlugin(),
   ],
+  experiments: {
+    topLevelAwait: true
+  }
 };
