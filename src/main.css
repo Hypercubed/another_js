@@ -1,8 +1,8 @@
 body {
-  margin: 0px auto;
+  margin: 0;
   text-align: center;
-  padding: 0px 0px;
-  width: 800px;
+  padding: 0;
+  width: 100vw;
   background: #e5e5e5;
   font-family: Arial;
   font-size: 14px;
@@ -13,14 +13,26 @@ div {
 }
 
 .main {
-  background-color: #fff;
-  padding-top: 10px;
-  width: 800px;
+  padding: 0;
+  width: 100vw;
   text-align: center;
+  margin: 0 auto;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.container {
+  width: 100%;
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .intro {
-  width: 640px;
+  width: 960px;
   text-align: left;
 }
 
@@ -33,7 +45,7 @@ footer {
 #game {
   display: none;
   position: relative;
-  width: 640px;
+  width: 100vw;
 }
 
 #game:-webkit-full-screen {
@@ -75,11 +87,23 @@ footer {
   position: absolute;
   cursor: pointer;
   background-color: rgba(255, 255, 255, 0.5);
-  color: white;
-  font-size: 5rem;
+  color: black;
+  font-size: 1rem;
   border: none;
   left: 0;
   right: 0;
   width: 100%;
-  top: calc(50% - 2.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  padding-bottom: 20px;
+}
+
+.start-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.controls {
+  display: none;
 }

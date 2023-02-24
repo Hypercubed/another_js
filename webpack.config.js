@@ -8,7 +8,7 @@ module.exports = {
   watch: true,
   entry: {
     main: path.resolve(__dirname, "./src/index.ts"),
-    data: path.resolve(__dirname, "./src/data/index.ts"),
+    data: path.resolve(__dirname, "./src/resources/index.ts"),
   },
   output: {
     path: path.resolve(__dirname, "./dist"),
@@ -43,8 +43,9 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: "src/audio-modules", to: "." },
-        { from: "screenshot-640.png", to: "." },
+        { from: "src/sound/processors.js", to: "." },
+        { from: "*.png", to: "." },
+        { from: "*.jpg", to: "." },
       ],
     }),
     new CleanWebpackPlugin(),

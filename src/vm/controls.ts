@@ -1,13 +1,16 @@
-export const KEY_UP = 1;
-export const KEY_RIGHT = 2;
-export const KEY_DOWN = 3;
-export const KEY_LEFT = 4;
-export const KEY_ACTION = 5;
+export const enum KEY_CODE {
+  UP = 1,
+  RIGHT = 2,
+  DOWN = 3,
+  LEFT = 4,
+  ACTION = 5,
+  FF = 6
+}
 
 let gamepadState = new Array(6);
 let keyboardState = new Array(6);
 
-function buttonPressed(b: any) {
+export function buttonPressed(b: any) {
   if (typeof b === "object") {
     return b.pressed;
   }
@@ -23,43 +26,19 @@ export function pollGamepads(actions = false) {
   const gamepad = gamepads[0];
 
   if (gamepad) {
-    // if (actions) {
-    //   if (buttonPressed(gamepad.buttons[8])) {
-    //     password_screen();
-    //     return true;
-    //   }
-
-    //   if (buttonPressed(gamepad.buttons[16])) {
-    //     console.log(vars);
-    //     return true;
-    //   }
-
-    //   if (buttonPressed(gamepad.buttons[9])) {
-    //     onPauseClick();
-    //     return true;
-    //   }
-
-    //   if (
-    //     buttonPressed(gamepad.buttons[4]) ||
-    //     buttonPressed(gamepad.buttons[6])
-    //   ) {
-    //     onRewindClick();
-    //     return true;
-    //   }
-    // }
-
-    gamepadState[KEY_UP] =
+    gamepadState[KEY_CODE.UP] =
       buttonPressed(gamepad.buttons[1]) ||
-      buttonPressed(gamepad.buttons[3]) ||
       buttonPressed(gamepad.buttons[12]) ||
       gamepad.axes[1] < -0.5;
-    gamepadState[KEY_DOWN] =
+    gamepadState[KEY_CODE.DOWN] =
       buttonPressed(gamepad.buttons[13]) || gamepad.axes[1] > 0.5;
-    gamepadState[KEY_LEFT] =
+    gamepadState[KEY_CODE.LEFT] =
       buttonPressed(gamepad.buttons[14]) || gamepad.axes[0] < -0.5;
-    gamepadState[KEY_RIGHT] =
+    gamepadState[KEY_CODE.RIGHT] =
       buttonPressed(gamepad.buttons[15]) || gamepad.axes[0] > 0.5;
-    gamepadState[KEY_ACTION] = buttonPressed(gamepad.buttons[0]);
+    gamepadState[KEY_CODE.ACTION] = buttonPressed(gamepad.buttons[0]);
+
+    gamepadState[KEY_CODE.FF] = buttonPressed(gamepad.buttons[5]) || buttonPressed(gamepad.buttons[7]);
   }
 }
 
@@ -72,26 +51,20 @@ function set_key_pressed(e: KeyboardEvent, state: unknown) {
 
   if (keyCode == 37) {
     e.preventDefault();
-    keyboardState[KEY_LEFT] = state;
+    keyboardState[KEY_CODE.LEFT] = state;
   } else if (keyCode == 38) {
     e.preventDefault();
-    keyboardState[KEY_UP] = state;
+    keyboardState[KEY_CODE.UP] = state;
   } else if (keyCode == 39) {
     e.preventDefault();
-    keyboardState[KEY_RIGHT] = state;
+    keyboardState[KEY_CODE.RIGHT] = state;
   } else if (keyCode == 40) {
     e.preventDefault();
-    keyboardState[KEY_DOWN] = state;
+    keyboardState[KEY_CODE.DOWN] = state;
   } else if (keyCode == 32 || keyCode == 13) {
     e.preventDefault();
-    keyboardState[KEY_ACTION] = state;
+    keyboardState[KEY_CODE.ACTION] = state;
   }
-  // else if (keyCode == 67) {
-  //   password_screen();
-  // }
-  // else if (keyCode == 27) {
-  //   onPauseClick();
-  // }
 }
 
 export function bind_events() {

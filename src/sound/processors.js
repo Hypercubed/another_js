@@ -2,24 +2,10 @@ const CreateRawChannel = () => {
   return {
     pos: 0,
     playing: false,
-    sample: null as any,
+    sample: null,
     speed: 0,
     loops: 0,
   };
-};
-
-interface AudioWorkletProcessor {
-  readonly port: MessagePort;
-  process(
-    inputs: Float32Array[][],
-    outputs: Float32Array[][],
-    parameters: Map<string, Float32Array>
-  ): void;
-}
-
-declare var AudioWorkletProcessor: {
-  prototype: AudioWorkletProcessor;
-  new (options?: AudioWorkletNodeOptions): AudioWorkletProcessor;
 };
 
 class SfxRawProcessor extends AudioWorkletProcessor {
@@ -27,14 +13,14 @@ class SfxRawProcessor extends AudioWorkletProcessor {
   _playing = false;
   _channels = new Array(4).fill(null).map(() => CreateRawChannel());
   _mixingRate = 0;
-  _previousPlaying: any = [];
+  _previousPlaying = [];
 
   constructor() {
     super();
     this.port.onmessage = this.handleMessage.bind(this);
   }
 
-  handleMessage(event: any) {
+  handleMessage(event) {
     switch (event.data.message) {
       case "init":
         console.log(
@@ -85,8 +71,8 @@ class SfxRawProcessor extends AudioWorkletProcessor {
     this._playing = false;
   }
 
-  play(sound: any, channel: number) {
-    const chan = this._channels[channel] as any;
+  play(sound, channel) {
+    const chan = this._channels[channel];
     chan.playing = true;
     chan.sample = sound.sample;
     chan.pos = 0;
@@ -95,10 +81,10 @@ class SfxRawProcessor extends AudioWorkletProcessor {
     chan.volume = sound.volume;
   }
 
-  mixChannels(out: Float32Array[], len: number) {
+  mixChannels(out, len) {
     for (let j = 0; j < len; ++j) {
       for (let i = 0; i < this._channels.length; ++i) {
-        const chan = this._channels[i] as any;
+        const chan = this._channels[i];
         if (chan.playing) {
           const sample =
             (chan.sample[Math.floor(chan.pos)] * chan.volume) / 63.0;
@@ -114,9 +100,9 @@ class SfxRawProcessor extends AudioWorkletProcessor {
   }
 
   process(
-    _inputs: Float32Array[][],
-    outputs: Float32Array[][],
-    _parameters: Map<string, Float32Array>
+    _inputs,
+    outputs,
+    _parameters
   ) {
     if (this._ready && this._playing) {
       this.mixChannels(outputs[0], outputs[0][0].length);
@@ -132,7 +118,7 @@ class Frac {
   inc = 0;
   offset = 0;
 
-  reset(n: number, d: number) {
+  reset(n, d) {
     this.inc = Math.floor((n << Frac.BITS) / d);
     this.offset = 0;
   }
@@ -143,7 +129,7 @@ class Frac {
   getFrac() {
     return this.offset & Frac.MASK;
   }
-  interpolate(sample1: number, sample2: number) {
+  interpolate(sample1, sample2) {
     const fp = this.getFrac();
     return (sample1 * (Frac.MASK - fp) + sample2 * fp) >> Frac.BITS;
   }
@@ -152,7 +138,7 @@ class Frac {
 let prevL = 0;
 let prevR = 0;
 
-function nr(inp: Int8Array, len: number, out: Int8Array) {
+function nr(inp, len, out) {
   let inOffset = 0;
   let outOffset = 0;
   for (let i = 0; i < len; ++i) {
@@ -173,7 +159,7 @@ function nr(inp: Int8Array, len: number, out: Int8Array) {
 }
 
 const CreateChannel = () => ({
-  sampleData: null as any,
+  sampleData: null,
   sampleLen: 0,
   sampleLoopPos: 0,
   sampleLoopLen: 0,
@@ -185,14 +171,14 @@ const CreateSfxPattern = () => ({
   note_1: 0,
   note_2: 0,
   sampleStart: 0,
-  sampleBuffer: null as any,
+  sampleBuffer: null,
   sampleLen: 0,
   loopPos: 0,
   loopLen: 0,
   sampleVolume: 0,
 });
 
-const F32Max = (input: number) => {
+const F32Max = (input) => {
   if (input > 1.0) {
     return 1.0;
   } else if (input < -1.0) {
@@ -205,7 +191,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
   _ready = false;
   _delay = 0;
   _resNum = 0;
-  _sfxMod = null as any;
+  _sfxMod = null;
   _playing = false;
   _rate = 0;
   _samplesLeft = 0;
@@ -216,7 +202,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     this.port.onmessage = this.handleMessage.bind(this);
   }
 
-  handleMessage(event: any) {
+  handleMessage(event) {
     switch (event.data.message) {
       case "init":
         console.log(
@@ -265,11 +251,11 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     }
   }
 
-  postMessage(message: any) {
+  postMessage(message) {
     this.port.postMessage(message);
   }
 
-  load(sfxMod: any) {
+  load(sfxMod) {
     this._sfxMod = sfxMod;
   }
 
@@ -282,7 +268,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     this._resNum = 0;
   }
 
-  play(rate: number) {
+  play(rate) {
     this._playing = true;
     this._rate = rate;
     this._samplesLeft = 0;
@@ -297,7 +283,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     this._playing = true;
   }
 
-  mixSfxPlayer(_inp: Float32Array[], out: Float32Array[], len: number) {
+  mixSfxPlayer(_inp, out, len) {
     const s8buf = new Int8Array(len * 2).fill(0);
     this.readSamples(s8buf, len);
     for (let i = 0; i < len; ++i) {
@@ -308,7 +294,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     }
   }
 
-  readSamples(buf: Int8Array, len: number) {
+  readSamples(buf, len) {
     if (this._delay === 0) {
       buf.fill(0, 0, len * 2);
     } else {
@@ -318,7 +304,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     }
   }
 
-  mixSamples(buf: Int8Array, len: number) {
+  mixSamples(buf, len) {
     buf.fill(0, 0, len * 2);
     const samplesPerTick = Math.floor(
       this._rate / Math.floor(1000 / this._delay)
@@ -347,7 +333,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     }
   }
 
-  mixChannel(s: number, ch: any) {
+  mixChannel(s, ch) {
     if (ch.sampleLen === 0) {
       return s;
     }
@@ -401,7 +387,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     }
   }
 
-  handlePattern(channel: number, data: DataView) {
+  handlePattern(channel, data) {
     const pat = CreateSfxPattern();
     pat.note_1 = data.getUint16(0);
     pat.note_2 = data.getUint16(2);
@@ -452,7 +438,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     }
 
     if (pat.note_1 === 0xfffd) {
-      // console.log(`SfxPlayer::handlePattern() _scriptVars[0xF4] = 0x${pat.note_2.toString(16)}`)
+      // console.log(`SfxPlayer::handlePattern() _scriptvmVars[0xF4] = 0x${pat.note_2.toString(16)}`)
       // *_syncVar = pat.note_2;
       // this._syncVar = pat.note_2
       this.postMessage({
@@ -499,7 +485,7 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     }
   }
 
-  process(inputs: Float32Array[][], outputs: Float32Array[][]) {
+  process(inputs, outputs) {
     if (this._ready && this._playing) {
       this.mixSfxPlayer(inputs[0], outputs[0], outputs[0][0].length);
     }
@@ -507,8 +493,6 @@ class SfxPlayerProcessor extends AudioWorkletProcessor {
     return true;
   }
 }
-
-declare function registerProcessor(name: string, processorCtor: any): undefined;
 
 registerProcessor("sfxplayer-processor", SfxPlayerProcessor);
 registerProcessor("sfxraw-processor", SfxRawProcessor);

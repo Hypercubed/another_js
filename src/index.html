@@ -6,9 +6,9 @@
   </head>
   <body>
     <div class="main">
-      <h1>Another World JS</h1>
-      <div>
-        <div class="intro">
+      <!-- <h1>Another World JS</h1> -->
+      <div class="container">
+        <!-- <div class="intro">
           <p>
             This is a JavaScript port of
             <a href="https://www.mobygames.com/game/out-of-this-world"
@@ -27,19 +27,36 @@
             </li>
             <li>double-click/double-tap on game screen to toggle fullscreen</li>
           </ul>
-        </div>
+        </div> -->
         <div id="preload">
-          <img src="screenshot-640.png" alt="" />
-          <button id="start">Click to start</button>
+          <img src="Another_World_by_Orioto.jpg" width="960" alt="" />
+          <button id="start">
+            <h1>Click to start</h1>
+            <ul class="start-list">
+              <li>
+                Move / Swim: arrow keys or L-pad to control the player
+              </li>
+              <li>
+                Kick / Fire Weapon: space, enter, (A)
+              </li>
+              <li>
+                Jump: up arrow arrow, (B) / (Y)
+              </li>
+              <li>
+                Pause: escape or (select)
+              </li>
+              <li>
+                Code screen: c or (start)
+              </li>
+            </ul>
+          </button>
         </div>
         <div>
           <div id="game">
-            <div class="square"></div>
-            <div class="square2"></div>
-            <canvas id="screen" width="640" height="400"></canvas>
+            <canvas id="screen" width="960" height="600"></canvas>
           </div>
           <p></p>
-          <div>
+          <div class="controls">
             <input type="button" value="Pause" id="pauseButton" />
             <input type="button" value="Password" id="passwordButton" />
             <input type="button" value="Reset" id="resetButton" />
@@ -67,7 +84,7 @@
             </select>
           </div>
           <p></p>
-          <div>
+          <div class="controls">
             <input type="checkbox" id="resolutionCheckbox" /><label
               for="resolutionCheckbox"
               >1991 screen resolution (320x200)</label

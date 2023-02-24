@@ -127,7 +127,7 @@ export class SfxPlayer {
     switch (data.message) {
       case "syncVar":
         const { variable, value } = data;
-        // vars[variable] = value
+        // vmVars[variable] = value
         this._modifyVarCallback(variable, value);
         break;
     }
