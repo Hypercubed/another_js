@@ -1,4 +1,6 @@
-import { VAR, vmVars } from "./memory";
+import * as memory from "./memory";
+
+import { VAR } from "./memory";
 
 export const enum KEY_CODE {
   UP = 1,
@@ -75,38 +77,38 @@ export function bind_events() {
 export function update_input() {
   let mask = 0;
 
-  vmVars[VAR.HERO_POS_LEFT_RIGHT] = 0;
-  vmVars[VAR.HERO_POS_JUMP_DOWN] = 0;
-  vmVars[VAR.HERO_POS_UP_DOWN] = 0;
-  vmVars[VAR.HERO_ACTION] = 0;
+  memory.vmVars[VAR.HERO_POS_LEFT_RIGHT] = 0;
+  memory.vmVars[VAR.HERO_POS_JUMP_DOWN] = 0;
+  memory.vmVars[VAR.HERO_POS_UP_DOWN] = 0;
+  memory.vmVars[VAR.HERO_ACTION] = 0;
 
   if (is_key_pressed(KEY_CODE.RIGHT)) {
-    vmVars[VAR.HERO_POS_LEFT_RIGHT] = 1;
+    memory.vmVars[VAR.HERO_POS_LEFT_RIGHT] = 1;
     mask |= 1;
   } else if (is_key_pressed(KEY_CODE.LEFT)) {
-    vmVars[VAR.HERO_POS_LEFT_RIGHT] = -1;
+    memory.vmVars[VAR.HERO_POS_LEFT_RIGHT] = -1;
     mask |= 2;
   }
 
   if (is_key_pressed(KEY_CODE.DOWN)) {
-    vmVars[VAR.HERO_POS_UP_DOWN] = 1;
+    memory.vmVars[VAR.HERO_POS_UP_DOWN] = 1;
     mask |= 4;
   } else if (is_key_pressed(KEY_CODE.UP)) {
-    vmVars[VAR.HERO_POS_UP_DOWN] = -1;
+    memory.vmVars[VAR.HERO_POS_UP_DOWN] = -1;
     mask |= 8;
   }
 
   if (is_key_pressed(KEY_CODE.JUMP)) {
-    vmVars[VAR.HERO_POS_JUMP_DOWN] = -1;
+    memory.vmVars[VAR.HERO_POS_JUMP_DOWN] = -1;
     mask |= 8;
   }
 
-  vmVars[VAR.HERO_POS_MASK] = mask;
+  memory.vmVars[VAR.HERO_POS_MASK] = mask;
 
   if (is_key_pressed(KEY_CODE.ACTION)) {
-    vmVars[VAR.HERO_ACTION] = 1;
+    memory.vmVars[VAR.HERO_ACTION] = 1;
     mask |= 0x80;
   }
 
-  vmVars[VAR.HERO_ACTION_POS_MASK] = mask;
+  memory.vmVars[VAR.HERO_ACTION_POS_MASK] = mask;
 }

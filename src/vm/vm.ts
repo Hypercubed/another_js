@@ -1,22 +1,14 @@
-import { DATA, font, isDemo, load, PARTS, strings_en, strings_fr } from "../resources";
+import { DATA, font, isDemo, load, PARTS, strings_en, strings_fr, STRINGS_LANGUAGE } from "../resources";
+
 import * as screen from "./canvas";
-
-import {
-  PALETTE_EGA,
-  PALETTE_TYPE,
-} from "./palette";
-
-import {
-  bind_events,
-  is_key_pressed,
-  KEY_CODE,
-  pollGamepads,
-  update_input,
-} from "./controls";
-
-import { TaskState, VAR, vmTasks, vmVars } from "./memory";
+import * as palette from "./palette";
+import * as controls from "./controls";
 import * as sound from "./sound";
-import { STRINGS_LANGUAGE } from "../resources/strings";
+import * as memory from "./memory";
+
+import { VAR } from "./memory";
+import type { TaskState } from "./memory";
+import { KEY_CODE } from "./controls";
 import { OP_CODE, DRAW_POLY_BACKGROUND, DRAW_POLY_SPRITE } from "./opcodes";
 
 export interface State {
@@ -36,11 +28,6 @@ const SCREEN_W = 320 * SCALE;
 const SCREEN_H = 200 * SCALE;
 const PAGE_SIZE = SCREEN_W * SCREEN_H;
 
-let is_1991: boolean; // 320x200
-let palette_type = PALETTE_TYPE.AMIGA;
-
-let palette32 = new Uint32Array(16 * 3); // Amiga, EGA, VGA
-let palette: Uint8Array;
 let buffer8 = new Uint8Array(4 * PAGE_SIZE);
 let current_page0: number; // current
 let current_page1: number; // front
@@ -101,7 +88,7 @@ function execute_task() {
         if ((opcode & 0x10) == 0) {
           x = (x << 8) | read_byte();
         } else {
-          x = vmVars[x];
+          x = memory.vmVars[x];
         }
       } else {
         if (opcode & 0x10) {
@@ -113,14 +100,14 @@ function execute_task() {
         if ((opcode & 4) == 0) {
           y = (y << 8) | read_byte();
         } else {
-          y = vmVars[y];
+          y = memory.vmVars[y];
         }
       }
       let polygons = polygons1;
       let zoom = 64;
       if ((opcode & 2) == 0) {
         if (opcode & 1) {
-          zoom = vmVars[read_byte()];
+          zoom = memory.vmVars[read_byte()];
         }
       } else {
         if (opcode & 1) {
@@ -148,28 +135,28 @@ export function run_tasks() {
     next_part = 0;
   }
 
-  for (let i = 0; i < vmTasks.length; ++i) {
-    vmTasks[i].state = vmTasks[i].next_state;
-    const offset = vmTasks[i].next_offset;
+  for (let i = 0; i < memory.vmTasks.length; ++i) {
+    memory.vmTasks[i].state = memory.vmTasks[i].next_state;
+    const offset = memory.vmTasks[i].next_offset;
     if (offset != -1) {
-      vmTasks[i].offset = offset == -2 ? -1 : offset;
-      vmTasks[i].next_offset = -1;
+      memory.vmTasks[i].offset = offset == -2 ? -1 : offset;
+      memory.vmTasks[i].next_offset = -1;
     }
   }
 
-  pollGamepads();
-  update_input();
+  controls.pollGamepads();
+  controls.update_input();
 
-  for (let i = 0; i < vmTasks.length; ++i) {
-    if (vmTasks[i].state == 0) {
-      const offset = vmTasks[i].offset;
+  for (let i = 0; i < memory.vmTasks.length; ++i) {
+    if (memory.vmTasks[i].state == 0) {
+      const offset = memory.vmTasks[i].offset;
       if (offset != -1) {
         bytecode_offset = offset;
-        vmTasks[i].stack.length = 0;
+        memory.vmTasks[i].stack.length = 0;
         task_num = i;
         task_paused = false;
         execute_task();
-        vmTasks[i].offset = bytecode_offset;
+        memory.vmTasks[i].offset = bytecode_offset;
       }
     }
   }
@@ -181,15 +168,15 @@ function restart(part: number) {
     throw "Part not found: " + part;
   }
 
-  palette = load(ResPart[0], ResPart[1]);
+  palette.set_palette(load(ResPart[0], ResPart[1]));
   bytecode = load(ResPart[2], ResPart[3]);
   polygons1 = load(ResPart[4], ResPart[5]);
   polygons2 = load(ResPart[6], ResPart[7]);
 
-  for (let i = 0; i < vmTasks.length; ++i) {
-    vmTasks[i] = { state: 0, next_state: 0, offset: -1, next_offset: -1, stack: [] };
+  for (let i = 0; i < memory.vmTasks.length; ++i) {
+    memory.vmTasks[i] = { state: 0, next_state: 0, offset: -1, next_offset: -1, stack: [] };
   }
-  vmTasks[0].offset = 0;
+  memory.vmTasks[0].offset = 0;
 }
 
 function get_page(num: number): number {
@@ -494,7 +481,6 @@ function draw_bitmap(num: number) {
 }
 
 function update_display(num: number) {
-  // console.log(`Script::op_updateDisplay(${num})`)
   if (num != 0xfe) {
     if (num == 0xff) {
       const tmp = current_page1;
@@ -506,19 +492,15 @@ function update_display(num: number) {
   }
   if (next_palette != -1) {
     const offset = next_palette * 32;
-    set_palette_444(offset, PALETTE_TYPE.AMIGA);
-    set_palette_ega(offset + 1024);
-    set_palette_444(offset + 1024, PALETTE_TYPE.VGA);
+    palette.set_palette_444(offset, palette.PALETTE_TYPE.AMIGA);
+    palette.set_palette_ega(offset + 1024);
+    palette.set_palette_444(offset + 1024, palette.PALETTE_TYPE.VGA);
     next_palette = -1;
   }
 
   screen.update(
     buffer8,
-    palette32,
-    palette_type,
-    palette_bmp,
-    current_page1 * PAGE_SIZE, // offset
-    is_1991
+    current_page1 * PAGE_SIZE // offset
   );
 }
 
@@ -526,22 +508,22 @@ const vm = {
   [OP_CODE.movConst]() {
     const num = read_byte();
     const imm = to_signed(read_word(), 16);
-    vmVars[num] = imm;
+    memory.vmVars[num] = imm;
   },
   [OP_CODE.mov]() {
     const dst = read_byte();
     const src = read_byte();
-    vmVars[dst] = vmVars[src];
+    memory.vmVars[dst] = memory.vmVars[src];
   },
   [OP_CODE.add]() {
     const dst = read_byte();
     const src = read_byte();
-    vmVars[dst] += vmVars[src];
+    memory.vmVars[dst] += memory.vmVars[src];
   },
   [OP_CODE.addConst]() {
     const num = read_byte();
     const imm = to_signed(read_word(), 16);
-    vmVars[num] += imm;
+    memory.vmVars[num] += imm;
     // gun sound workaround to do
     if (current_part === 16006) {
       /* Playing a sound. */
@@ -550,11 +532,11 @@ const vm = {
   },
   [OP_CODE.call]() {
     const addr = read_word();
-    vmTasks[task_num].stack.push(bytecode_offset);
+    memory.vmTasks[task_num].stack.push(bytecode_offset);
     bytecode_offset = addr;
   },
   [OP_CODE.ret]() {
-    bytecode_offset = vmTasks[task_num].stack.pop();
+    bytecode_offset = memory.vmTasks[task_num].stack.pop();
   },
   [OP_CODE.pauseThread]() {
     task_paused = true;
@@ -565,22 +547,22 @@ const vm = {
   [OP_CODE.setSetVect]() {
     const num = read_byte();
     const addr = read_word();
-    vmTasks[num].next_offset = addr;
+    memory.vmTasks[num].next_offset = addr;
   },
   [OP_CODE.jnz]() {
     const num = read_byte();
-    vmVars[num] -= 1;
+    memory.vmVars[num] -= 1;
     const addr = read_word();
-    if (vmVars[num] != 0) {
+    if (memory.vmVars[num] != 0) {
       bytecode_offset = addr;
     }
   },
   [OP_CODE.condJmp]() {
     const op = read_byte();
-    const b = vmVars[read_byte()];
+    const b = memory.vmVars[read_byte()];
     let a;
     if (op & 0x80) {
-      a = vmVars[read_byte()];
+      a = memory.vmVars[read_byte()];
     } else if (op & 0x40) {
       a = to_signed(read_word(), 16);
     } else {
@@ -629,12 +611,12 @@ const vm = {
     const state = read_byte();
     if (state == 2) {
       for (let i = start; i <= end; ++i) {
-        vmTasks[i].next_offset = -2;
+        memory.vmTasks[i].next_offset = -2;
       }
     } else {
       console.assert(state == 0 || state == 1);
       for (let i = start; i <= end; ++i) {
-        vmTasks[i].next_state = state;
+        memory.vmTasks[i].next_state = state;
       }
     }
   },
@@ -650,14 +632,14 @@ const vm = {
   [OP_CODE.copyVideoPage]() {
     const src = read_byte();
     const dst = read_byte();
-    copy_page(src, dst, vmVars[VAR.SCROLL_Y]);
+    copy_page(src, dst, memory.vmVars[VAR.SCROLL_Y]);
   },
   [OP_CODE.blitFramebuffer]() {
     const num = read_byte();
 
     const delay = Date.now() - timestamp;
-    const INTERVAL = is_key_pressed(KEY_CODE.FF) ? 0 : 50;
-    const timeToSleep = vmVars[VAR.PAUSE_SLICES] * 20 * INTERVAL / 50 - delay;
+    const INTERVAL = controls.is_key_pressed(KEY_CODE.FF) ? 0 : 50;
+    const timeToSleep = memory.vmVars[VAR.PAUSE_SLICES] * 20 * INTERVAL / 50 - delay;
 
     if (timeToSleep > 0) {
       const t = timestamp + timeToSleep;
@@ -668,7 +650,7 @@ const vm = {
       timestamp = Date.now();
     }
 
-    vmVars[VAR.WTF] = 0;
+    memory.vmVars[VAR.WTF] = 0;
     update_display(num);
   },
   [OP_CODE.killThread]() {
@@ -685,27 +667,27 @@ const vm = {
   [OP_CODE.sub]() {
     const dst = read_byte();
     const src = read_byte();
-    vmVars[dst] -= vmVars[src];
+    memory.vmVars[dst] -= memory.vmVars[src];
   },
   [OP_CODE.and]() {
     const num = read_byte();
     const imm = read_word();
-    vmVars[num] = to_signed(vmVars[num] & imm & 0xffff, 16);
+    memory.vmVars[num] = to_signed(memory.vmVars[num] & imm & 0xffff, 16);
   },
   [OP_CODE.or]() {
     const num = read_byte();
     const imm = read_word();
-    vmVars[num] = to_signed((vmVars[num] | imm) & 0xffff, 16);
+    memory.vmVars[num] = to_signed((memory.vmVars[num] | imm) & 0xffff, 16);
   },
   [OP_CODE.shl]() {
     const num = read_byte();
     const imm = read_word() & 15;
-    vmVars[num] = to_signed((vmVars[num] << imm) & 0xffff, 16);
+    memory.vmVars[num] = to_signed((memory.vmVars[num] << imm) & 0xffff, 16);
   },
   [OP_CODE.shr]() { // shr
     const num = read_byte();
     const imm = read_word() & 15;
-    vmVars[num] = to_signed((vmVars[num] & 0xffff) >> imm, 16);
+    memory.vmVars[num] = to_signed((memory.vmVars[num] & 0xffff) >> imm, 16);
   },
   [OP_CODE.playSound]() {
     const num = read_word();
@@ -722,7 +704,7 @@ const vm = {
       if (num >= 3000) {
         // should also load t3%d.bmp files for transparency (color 0x10)
         const bitmap = DATA.bitmaps[num] as any;
-        set_palette_bmp(load(bitmap[0], 256 * 3));
+        palette.set_palette_bmp(load(bitmap[0], 256 * 3));
         buffer8.set(load(bitmap[1], SCREEN_W * SCREEN_H));
       } else {
         draw_bitmap(num);
@@ -737,62 +719,22 @@ const vm = {
   },
 };
 
-// PALETTE
-let palette_bmp = new Uint32Array(256 * 3); // 15th edition backgrounds
-
-function set_palette_ega(offset: number) {
-  for (let i = 0; i < 16; ++i) {
-    let color = (palette[offset + i * 2] << 8) | palette[offset + i * 2 + 1];
-    color = ((color >> 12) & 15) * 3;
-    palette32[PALETTE_TYPE.EGA * 16 + i] =
-      0xff000000 |
-      (PALETTE_EGA[color + 2] << 16) |
-      (PALETTE_EGA[color + 1] << 8) |
-      PALETTE_EGA[color];
-  }
-}
-
-function set_palette_444(offset: number, type: number) {
-  for (let i = 0; i < 16; ++i) {
-    const color = (palette[offset + i * 2] << 8) | palette[offset + i * 2 + 1];
-    let r = (color >> 8) & 15;
-    r = (r << 4) | r;
-    let g = (color >> 4) & 15;
-    g = (g << 4) | g;
-    let b = color & 15;
-    b = (b << 4) | b;
-    palette32[type * 16 + i] = 0xff000000 | (b << 16) | (g << 8) | r;
-  }
-}
-
-function set_palette_bmp(data: Uint8Array) {
-  let color = 0;
-  for (let i = 0; i < 256; ++i) {
-    palette_bmp[i] =
-      0xff000000 |
-      (data[color + 2] << 16) |
-      (data[color + 1] << 8) |
-      data[color];
-    color += 3;
-  }
-}
-
 // PUBLIC API
 export function get_state(): State {
   return {
     part: current_part,
-    vars: vmVars.slice(),
-    tasks: JSON.parse(JSON.stringify(vmTasks)),
+    vars: memory.vmVars.slice(),
+    tasks: JSON.parse(JSON.stringify(memory.vmTasks)),
     buffer8: buffer8.slice(),
-    palette32: palette32.slice(),
+    palette32: palette.palette32.slice(),
   };
 }
 
 export function restore_state(state: State) {
-  vmVars.splice(0, vmVars.length, ...state.vars);
-  vmTasks.splice(0, vmTasks.length, ...state.tasks)
+  memory.vmVars.splice(0, memory.vmVars.length, ...state.vars);
+  memory.vmTasks.splice(0, memory.vmTasks.length, ...state.tasks)
   buffer8 = state.buffer8;
-  palette32 = state.palette32;
+  palette.set_palette32(state.palette32);
 }
 
 export function reset() {
@@ -801,19 +743,19 @@ export function reset() {
   current_page0 = get_page(0xfe);
   buffer8.fill(0);
   next_palette = -1;
-  vmVars.fill(0);
+  memory.vmVars.fill(0);
 
-  vmVars[VAR.RANDOM_SEED] = Date.now();
-  // vmVars[VAR.HACK_VAR_54] = 0x0081;
+  memory.vmVars[VAR.RANDOM_SEED] = Date.now();
+  // memory.vmVars[VAR.HACK_VAR_54] = 0x0081;
 
   if (BYPASS_PROTECTION) {
-    vmVars[VAR.HACK_VAR_BC] = 0x10;
-    vmVars[VAR.HACK_VAR_C6] = 0x80;
-    vmVars[VAR.HACK_VAR_F2] = 4000; // 4000 for Amiga bytecode
-    vmVars[VAR.HACK_VAR_DC] = 33;
+    memory.vmVars[VAR.HACK_VAR_BC] = 0x10;
+    memory.vmVars[VAR.HACK_VAR_C6] = 0x80;
+    memory.vmVars[VAR.HACK_VAR_F2] = 4000; // 4000 for Amiga bytecode
+    memory.vmVars[VAR.HACK_VAR_DC] = 33;
   }
-  vmVars[VAR.HACK_VAR_E4] = 20;
-  
+  memory.vmVars[VAR.HACK_VAR_E4] = 20;
+
   next_part = (isDemo || BYPASS_PROTECTION) ? 16001 : 16000;
   sound.player?.stopMusic();
 }
@@ -825,25 +767,18 @@ export function change_part(num: number) {
   next_part = 0;
 }
 
-export function set_pallet(num: number) {
-  palette_type = num;
-}
-
 export function set_language(num: number) {
   strings_language = num;
-}
-
-export function set_resolution(low: boolean) {
-  is_1991 = low;
-}
-
-export function toggle_resolution() {
-  is_1991 = !is_1991;
 }
 
 export async function init(canvas: HTMLCanvasElement) {
   screen.init(canvas, SCREEN_W, SCREEN_H, SCALE);
   await sound.init();
-  bind_events();
+
+  sound.player.setModifyVarCallback((variable: number, value: number) => {
+    memory.vmVars[variable] = value;
+  });
+
+  controls.bind_events();
   reset();
 }

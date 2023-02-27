@@ -1,7 +1,7 @@
 import "gamecontroller.js";
 
 import "./main.css";
-import { vm, engine, screen } from "./vm";
+import { vm, engine, screen, palette } from "./vm";
 
 let started = false;
 
@@ -59,7 +59,7 @@ languageSelect.addEventListener("change", (e: any) => {
 });
 
 paletteSelect.addEventListener("change", (e: any) => {
-  vm.set_pallet(e.currentTarget.selectedIndex);
+  palette.set_palette(e.currentTarget.selectedIndex);
 });
 
 partSelect.addEventListener("change", (e: any) => {
@@ -67,7 +67,7 @@ partSelect.addEventListener("change", (e: any) => {
 });
 
 resolutionCheckbox.addEventListener("click", (e: any) => {
-  vm.set_resolution(e.currentTarget.checked);
+  screen.set_resolution(e.currentTarget.checked);
 });
 
 gameElm.addEventListener("dblclick", screen.fullscreen);
@@ -95,7 +95,7 @@ gameControl.on('connect', (gamepad: any) => {
   gamepad.after('button9', pause);
   gamepad.after('button16', engine.reset);
   gamepad.after('button4', engine.rewind);
-  gamepad.after('button3', vm.toggle_resolution);
+  gamepad.after('button3', screen.toggle_resolution);
 
   gamepad.after('button7', engine.save);
   gamepad.after('button6', engine.load);

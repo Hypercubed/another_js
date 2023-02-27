@@ -1,6 +1,6 @@
 import { decompressSync } from "fflate";
 
-export { strings_en, strings_fr, font } from "./strings";
+export * from "./strings";
 
 type Resource = Record<number, [string, number]>;
 

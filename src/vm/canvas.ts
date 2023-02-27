@@ -1,16 +1,15 @@
+import * as palette from "./palette";
+
 let SCALE = 2;
 let SCREEN_W = 320 * 2;
 let SCREEN_H = 200 * 2;
+let is_1991 = false;
 
 let _canvas: HTMLCanvasElement;
 
 export function update(
   buffer: Uint8Array,
-  palette32: Uint32Array,
-  palette_type: number,
-  palette_bmp: Uint32Array,
-  offset: number,
-  is_1991: boolean
+  offset: number
 ) {
   let context = _canvas.getContext("2d");
   let data = context.getImageData(0, 0, SCREEN_W, SCREEN_H);
@@ -19,7 +18,7 @@ export function update(
     let rgba_offset = 0;
     for (let y = 0; y < SCREEN_H; y += SCALE) {
       for (let x = 0; x < SCREEN_W; x += SCALE) {
-        const color = palette32[palette_type * 16 + buffer[offset + x]];
+        const color = palette.palette32[palette.palette_type * 16 + buffer[offset + x]];
         for (let j = 0; j < SCALE; ++j) {
           rgba.fill(
             color,
@@ -35,9 +34,9 @@ export function update(
     for (let i = 0; i < SCREEN_W * SCREEN_H; ++i) {
       const color = buffer[offset + i];
       if (color < 16) {
-        rgba[i] = palette32[palette_type * 16 + color];
+        rgba[i] = palette.palette32[palette.palette_type * 16 + color];
       } else {
-        rgba[i] = palette_bmp[color - 16];
+        rgba[i] = palette.palette_bmp[color - 16];
       }
     }
   }
@@ -66,3 +65,12 @@ const _fullscreen = (elem: any, options?: any) => {
 export function fullscreen() {
   _fullscreen(_canvas);
 }
+
+export function set_resolution(low: boolean) {
+  is_1991 = low;
+}
+
+export function toggle_resolution() {
+  is_1991 = !is_1991;
+}
+

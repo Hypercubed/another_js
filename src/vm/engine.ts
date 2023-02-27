@@ -32,7 +32,6 @@ function tick() {
       rewind_buffer.shift();
     }
     rewind_buffer.push(vm.get_state());
-    console.log('rewind push', rewind_buffer.length);
     rewind_timestamp = Date.now();
   }
 
@@ -64,9 +63,7 @@ export function pause() {
 }
 
 export function rewind() {
-  console.log('rewind', rewind_buffer.length)
   if (rewind_buffer.length != 0) {
-    // console.log( 'rewind pos:' + rewind_buffer.length );
     let state = rewind_buffer.pop();
     vm.restore_state(state);
   }
