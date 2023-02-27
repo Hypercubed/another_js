@@ -1,6 +1,8 @@
-export const PALETTE_TYPE_AMIGA = 0;
-export const PALETTE_TYPE_EGA = 1;
-export const PALETTE_TYPE_VGA = 2;
+export const enum PALETTE_TYPE {
+  AMIGA = 0,
+  EGA = 1,
+  VGA = 2,
+}
 
 export const PALETTE_EGA = [
   0x00, 0x00, 0x00, 0x00, 0x00, 0xaa, 0x00, 0xaa, 0x00, 0x00, 0xaa, 0xaa, 0xaa,

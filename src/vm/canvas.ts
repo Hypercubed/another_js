@@ -4,7 +4,7 @@ let SCREEN_H = 200 * 2;
 
 let _canvas: HTMLCanvasElement;
 
-export function update_screen(
+export function update(
   buffer: Uint8Array,
   palette32: Uint32Array,
   palette_type: number,
@@ -44,7 +44,7 @@ export function update_screen(
   context.putImageData(data, 0, 0);
 }
 
-export function init_canvas(canvas: HTMLCanvasElement, W: number, H: number, S: number) {
+export function init(canvas: HTMLCanvasElement, W: number, H: number, S: number) {
   _canvas = canvas;
 
   SCALE = S;
@@ -52,7 +52,7 @@ export function init_canvas(canvas: HTMLCanvasElement, W: number, H: number, S: 
   SCREEN_H = H;
 }
 
-const _enterFullscreen = (elem: any, options?: any) => {
+const _fullscreen = (elem: any, options?: any) => {
   return elem[
     [
       "requestFullscreen",
@@ -63,6 +63,6 @@ const _enterFullscreen = (elem: any, options?: any) => {
   ]?.(options);
 };
 
-export function enterFullscreen() {
-  _enterFullscreen(_canvas);
+export function fullscreen() {
+  _fullscreen(_canvas);
 }

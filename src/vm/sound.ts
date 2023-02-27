@@ -1,6 +1,6 @@
 import { DATA, load_modules, load_sounds } from "../resources";
 import { SfxPlayer } from "../sound/SfxPlayer";
-import { vmVars } from "./vm";
+import { vmVars } from "./memory";
 
 const freqTable = [
   0x0cff, 0x0dc3, 0x0e91, 0x0f6f, 0x1056, 0x114e, 0x1259, 0x136c, 0x149f,
@@ -13,7 +13,7 @@ const freqTable = [
 // SOUNDS
 export let player: SfxPlayer;
 
-export async function init_sounds() {
+export async function init() {
   player = new SfxPlayer();
   player.setModifyVarCallback((variable: number, value: number) => {
     vmVars[variable] = value;

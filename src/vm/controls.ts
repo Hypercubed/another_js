@@ -1,4 +1,4 @@
-import { VAR, vmVars } from "./vm";
+import { VAR, vmVars } from "./memory";
 
 export const enum KEY_CODE {
   UP = 1,
@@ -20,7 +20,7 @@ export function buttonPressed(b: any) {
   return b === 1.0;
 }
 
-export function pollGamepads(actions = false) {
+export function pollGamepads() {
   const gamepads = navigator.getGamepads();
   if (!gamepads) {
     return;
