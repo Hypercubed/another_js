@@ -44,10 +44,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "src/sound/processors.js", to: "." },
-        { from: "data/ootw.js", to: "." },
-        { from: "data/ootw-demo.js", to: "." },
-        { from: "*.png", to: "." },
-        { from: "*.jpg", to: "." },
+        { from: "*.*", to: ".", context: "data/" },
+        { from: "*.jpg", to: ".", context: "src/" },
       ],
     }),
     new CleanWebpackPlugin(),

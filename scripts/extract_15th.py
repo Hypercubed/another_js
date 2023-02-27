@@ -43,8 +43,7 @@ while True:
 	m = re.match(r'dlx/file(\d\d\d).dat', data_name)
 	if m:
 		num = int(m.group(1), 10)
-		if num in DEMO_RESOURCES:
-			resources.append( ( num, data_offset, data_size ) )
+		resources.append( ( num, data_offset, data_size ) )
 	else:
 		m = re.match(r'dlx/e(3\d\d\d).bmp', data_name)
 		if m:
@@ -61,12 +60,12 @@ for r in resources:
 	buf = pkf.read(size)
 	assert len(buf) == size
 	# ensure file is not encrypted (DRM)
-	assert buf[:5] != 'TooDC'
-	print 'const data%02x = "%s";' % (num, base64.b64encode(zlib.compress(buf)))
-	print 'const size%02x = %d;' % (num, size)
+	# assert buf[:5] != 'TooDC'
+	print 'export const data%02x = "%s";' % (num, base64.b64encode(zlib.compress(buf)))
+	print 'export const size%02x = %d;' % (num, size)
 
 bitmaps.sort(key=lambda x: x[0])
-print 'const bitmaps = {'
+print 'export const bitmaps = {'
 for b in bitmaps:
 	num = b[0]
 	pkf.seek(b[1])
@@ -79,3 +78,5 @@ for b in bitmaps:
 	pix = zlib.compress(''.join([ chr(PALETTE_OFFSET + c) for c in img.getdata() ]))
 	print '\t%3d : [ "%s", "%s" ],' % (num, base64.b64encode(pal), base64.b64encode(pix))
 print '};'
+
+

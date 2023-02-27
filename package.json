@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "fflate": "^0.7.1",
+    "gamecontroller.js": "^1.5.0",
     "nipplejs": "^0.9.0",
     "stats.js": "^0.17.0"
   },

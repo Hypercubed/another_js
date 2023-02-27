@@ -1,10 +1,13 @@
+import { VAR, vmVars } from "./vm";
+
 export const enum KEY_CODE {
   UP = 1,
   RIGHT = 2,
   DOWN = 3,
   LEFT = 4,
   ACTION = 5,
-  FF = 6
+  JUMP = 6,
+  FF = 7
 }
 
 let gamepadState = new Array(6);
@@ -26,16 +29,12 @@ export function pollGamepads(actions = false) {
   const gamepad = gamepads[0];
 
   if (gamepad) {
-    gamepadState[KEY_CODE.UP] =
-      buttonPressed(gamepad.buttons[1]) ||
-      buttonPressed(gamepad.buttons[12]) ||
-      gamepad.axes[1] < -0.5;
-    gamepadState[KEY_CODE.DOWN] =
-      buttonPressed(gamepad.buttons[13]) || gamepad.axes[1] > 0.5;
-    gamepadState[KEY_CODE.LEFT] =
-      buttonPressed(gamepad.buttons[14]) || gamepad.axes[0] < -0.5;
-    gamepadState[KEY_CODE.RIGHT] =
-      buttonPressed(gamepad.buttons[15]) || gamepad.axes[0] > 0.5;
+    gamepadState[KEY_CODE.UP] = gamepad.axes[1] < -0.5;
+    gamepadState[KEY_CODE.DOWN] = gamepad.axes[1] > 0.5;
+    gamepadState[KEY_CODE.LEFT] = gamepad.axes[0] < -0.5;
+    gamepadState[KEY_CODE.RIGHT] = gamepad.axes[0] > 0.5;
+
+    gamepadState[KEY_CODE.JUMP] = buttonPressed(gamepad.buttons[1]);
     gamepadState[KEY_CODE.ACTION] = buttonPressed(gamepad.buttons[0]);
 
     gamepadState[KEY_CODE.FF] = buttonPressed(gamepad.buttons[5]) || buttonPressed(gamepad.buttons[7]);
@@ -46,24 +45,21 @@ export function is_key_pressed(code: number) {
   return keyboardState[code] || gamepadState[code];
 }
 
-function set_key_pressed(e: KeyboardEvent, state: unknown) {
-  const { keyCode } = e;
+const controls = {
+  Control: KEY_CODE.ACTION,
+  Shift: KEY_CODE.JUMP,
+  ArrowUp: KEY_CODE.UP,
+  ArrowDown: KEY_CODE.DOWN,
+  ArrowLeft: KEY_CODE.LEFT,
+  ArrowRight: KEY_CODE.RIGHT,
+  f: KEY_CODE.FF
+}
 
-  if (keyCode == 37) {
+function set_key_pressed(e: KeyboardEvent, state: unknown) {
+  if (e.key in controls) {
     e.preventDefault();
-    keyboardState[KEY_CODE.LEFT] = state;
-  } else if (keyCode == 38) {
-    e.preventDefault();
-    keyboardState[KEY_CODE.UP] = state;
-  } else if (keyCode == 39) {
-    e.preventDefault();
-    keyboardState[KEY_CODE.RIGHT] = state;
-  } else if (keyCode == 40) {
-    e.preventDefault();
-    keyboardState[KEY_CODE.DOWN] = state;
-  } else if (keyCode == 32 || keyCode == 13) {
-    e.preventDefault();
-    keyboardState[KEY_CODE.ACTION] = state;
+    const code: KEY_CODE = controls[e.key as keyof typeof controls];
+    keyboardState[code] = state;
   }
 }
 
@@ -74,4 +70,43 @@ export function bind_events() {
   document.onkeyup = function (e) {
     set_key_pressed(e, 0);
   };
+}
+
+export function update_input() {
+  let mask = 0;
+
+  vmVars[VAR.HERO_POS_LEFT_RIGHT] = 0;
+  vmVars[VAR.HERO_POS_JUMP_DOWN] = 0;
+  vmVars[VAR.HERO_POS_UP_DOWN] = 0;
+  vmVars[VAR.HERO_ACTION] = 0;
+
+  if (is_key_pressed(KEY_CODE.RIGHT)) {
+    vmVars[VAR.HERO_POS_LEFT_RIGHT] = 1;
+    mask |= 1;
+  } else if (is_key_pressed(KEY_CODE.LEFT)) {
+    vmVars[VAR.HERO_POS_LEFT_RIGHT] = -1;
+    mask |= 2;
+  }
+
+  if (is_key_pressed(KEY_CODE.DOWN)) {
+    vmVars[VAR.HERO_POS_UP_DOWN] = 1;
+    mask |= 4;
+  } else if (is_key_pressed(KEY_CODE.UP)) {
+    vmVars[VAR.HERO_POS_UP_DOWN] = -1;
+    mask |= 8;
+  }
+
+  if (is_key_pressed(KEY_CODE.JUMP)) {
+    vmVars[VAR.HERO_POS_JUMP_DOWN] = -1;
+    mask |= 8;
+  }
+
+  vmVars[VAR.HERO_POS_MASK] = mask;
+
+  if (is_key_pressed(KEY_CODE.ACTION)) {
+    vmVars[VAR.HERO_ACTION] = 1;
+    mask |= 0x80;
+  }
+
+  vmVars[VAR.HERO_ACTION_POS_MASK] = mask;
 }

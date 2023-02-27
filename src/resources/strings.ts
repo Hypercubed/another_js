@@ -1,3 +1,8 @@
+export const enum STRINGS_LANGUAGE {
+  EN = 0,
+  FR = 1
+}
+
 export const strings_en = {
   0x001: "P E A N U T  3000",
   0x002:

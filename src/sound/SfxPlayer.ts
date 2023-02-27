@@ -30,15 +30,18 @@ export class SfxPlayer {
   _channels = new Array(4).fill(null);
 
   // new
-  _audioContext: any = null;
-  _sfxRawWorklet: any = null;
-  _sfxPlayerWorklet: any = null;
+  _audioContext: AudioContext = null;
+  _sfxRawWorklet: AudioWorkletNode = null;
+  _sfxPlayerWorklet: AudioWorkletNode = null;
   _modifyVarCallback: any = null;
 
-  constructor(modifyVarCallback: any) {
+  constructor() {
     // console.log('SfxPlayer::contructor')
     this._audioContext = new window.AudioContext();
     this.resumeAudio();
+  }
+
+  setModifyVarCallback(modifyVarCallback: any) {
     this._modifyVarCallback = modifyVarCallback;
   }
 

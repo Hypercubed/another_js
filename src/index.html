@@ -3,12 +3,13 @@
     <title>Another World JS</title>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <script src="https://unpkg.com/@free-side/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>
   </head>
   <body>
     <div class="main">
       <div class="container">
         <div id="preload">
-          <img src="Another_World_by_Orioto.jpg" width="960" alt="" />
+          <img src="AnotherWorld_image1600w.jpg" width="960" alt="" />
           <button id="start">
             <h1>Click to start</h1>
             <ul class="start-list">
@@ -16,10 +17,10 @@
                 Move / Swim: arrow keys or L-pad to control the player
               </li>
               <li>
-                Kick / Fire Weapon: space, enter, (A)
+                Kick / Fire Weapon: Ctrl, (A)
               </li>
               <li>
-                Jump: up arrow arrow, (B) / (Y)
+                Jump: Shift, (B)
               </li>
               <li>
                 Pause: escape or (select)
@@ -35,42 +36,50 @@
             <canvas id="screen" width="960" height="600"></canvas>
           </div>
           <p></p>
-          <div class="controls">
-            <input type="button" value="Pause" id="pauseButton" />
-            <input type="button" value="Password" id="passwordButton" />
-            <input type="button" value="Reset" id="resetButton" />
-            <input type="button" value="Rewind" id="rewindButton" />
-            <select id="languageSelect">
-              <option>English</option>
-              <option>French</option>
-            </select>
-            Palette
-            <select id="paletteSelect">
-              <option>Amiga</option>
-              <option>EGA</option>
-            </select>
-            Part
-            <select id="partSelect">
-              <option value="0">Copy Protection</option>
-              <option value="1">Introduction</option>
-              <option value="2">Water</option>
-              <option value="3">Jail</option>
-              <option value="4">Caves</option>
-              <option value="5">Arena</option>
-              <option value="6">Luxe</option>
-              <option value="7">Final</option>
-              <option value="8">Password screen</option>
-            </select>
-          </div>
-          <p></p>
-          <div class="controls">
-            <input type="checkbox" id="resolutionCheckbox" /><label
-              for="resolutionCheckbox"
-              >1991 screen resolution (320x200)</label
-            >
+          <div id="controls">
+            <div class="controls">
+              <input type="button" value="Pause" id="pauseButton" />
+              <input type="button" value="Password" id="passwordButton" />
+              <input type="button" value="Reset" id="resetButton" />
+              <input type="button" value="Rewind" id="rewindButton" />
+              <select id="languageSelect">
+                <option>English</option>
+                <option>French</option>
+              </select>
+              Palette
+              <select id="paletteSelect">
+                <option>Amiga</option>
+                <option>EGA</option>
+              </select>
+              Part
+              <select id="partSelect">
+                <option value="0">Copy Protection</option>
+                <option value="1">Introduction</option>
+                <option value="2">Water</option>
+                <option value="3">Jail</option>
+                <option value="4">Caves</option>
+                <option value="5">Arena</option>
+                <option value="6">Luxe</option>
+                <option value="7">Final</option>
+                <option value="8">Password screen</option>
+              </select>
+            </div>
+            <p></p>
+            <div class="controls">
+              <input type="checkbox" id="resolutionCheckbox" /><label
+                for="resolutionCheckbox"
+                >1991 screen resolution (320x200)</label
+              >
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <audio id="audio" autoplay>
+      <source src="Another World.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+
   </body>
 </html>

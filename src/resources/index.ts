@@ -6,8 +6,8 @@ type Resource = Record<number, [string, number]>;
 
 interface Data {
   bitmaps: Resource;
-  sounds: Resource;
-  modules: Resource;
+  sounds?: Resource;
+  modules?: Resource;
 }
 
 interface Parts {
@@ -21,6 +21,12 @@ let DATA: Data = null;
 try {
   /* @ts-ignore */
   const RES = await import(/* webpackIgnore: true */ "./ootw.js");
+
+  console.log("loaded ootw.js");
+
+  // const RES15 = await import(/* webpackIgnore: true */ "./ootw-15th.js");
+  // const RES = RES0;
+
   isDemo = false;
 
   PARTS = {
@@ -126,6 +132,8 @@ try {
   /* @ts-ignore */
   const RES = await import(/* webpackIgnore: true */ "./ootw-demo.js");
 
+  console.log("loaded ootw-demo.js");
+
   PARTS = {
     16001: [
       RES.data17,
@@ -157,17 +165,25 @@ try {
 }
 
 export function load_modules() {
+  if (!DATA.modules) return false;
+
   Object.entries(DATA.modules).forEach(([, module]: any[]) => {
     const [data, size] = module;
     module.push(load(data, size));
   });
+
+  return true;
 }
 
 export function load_sounds() {
+  if (!DATA.sounds) return false;
+
   Object.entries(DATA.sounds).forEach(([, sound]: any[]) => {
     const [data, size] = sound;
     sound.push(load(data, size));
   });
+
+  return true;
 }
 
 export function load(data: string, size: number) {

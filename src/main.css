@@ -22,6 +22,8 @@ div {
   bottom: 0;
   left: 0;
   right: 0;
+
+  /* background: url("/home/jmh/projects/another_js/src/commodore-amiga.jpg"); */
 }
 
 .container {
@@ -104,6 +106,6 @@ footer {
   margin: 0;
 }
 
-.controls {
+/* .controls {
   display: none;
-}
+} */

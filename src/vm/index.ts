@@ -1,7 +1,6 @@
 import Stats from "stats.js";
 
-import { DATA, font, isDemo, load, load_modules, load_sounds, PARTS, strings_en, strings_fr } from "../resources";
-import { SfxPlayer } from "../sound/sound";
+import { DATA, font, isDemo, load, PARTS, strings_en, strings_fr } from "../resources";
 import { init_canvas, update_screen } from "./canvas";
 
 import {
@@ -10,30 +9,37 @@ import {
   PALETTE_TYPE_EGA,
   PALETTE_TYPE_VGA,
 } from "./palette";
-import { _freqTable } from "../sound/freq-table";
+
 import {
   bind_events,
   is_key_pressed,
   KEY_CODE,
   pollGamepads,
+  update_input,
 } from "./controls";
-import { DRAW_POLY_BACKGROUND, DRAW_POLY_SPRITE, OP_CODE, VAR } from "./vm";
 
-const STRINGS_LANGUAGE_EN = 0;
-const STRINGS_LANGUAGE_FR = 1;
+import { DRAW_POLY_BACKGROUND, DRAW_POLY_SPRITE, OP_CODE, TaskState, VAR, vmTasks, vmVars } from "./vm";
+import { init_sounds, player, play_music, play_sound } from "./sound";
+import { STRINGS_LANGUAGE } from "../resources/strings";
+
+interface State {
+  part: number;
+  vars: number[];
+  tasks: TaskState[];
+  buffer8: Uint8Array;
+  palette32: Uint32Array;
+}
 
 const BYPASS_PROTECTION = true;
 
-let strings_language = STRINGS_LANGUAGE_EN;
+let strings_language = STRINGS_LANGUAGE.EN;
 
 const REWIND_SIZE = 10;
 const REWIND_INTERVAL = 1000;
 
-// let save_states = new Map();
-let rewind_buffer = new Array();
+let saved_state: State = null;
+const rewind_buffer: State[] = new Array();
 let rewind_timestamp: number;
-
-let INTERVAL = 50;
 
 let timer: number;
 
@@ -53,13 +59,11 @@ let current_page1: number; // front
 let current_page2: number; // back
 let next_palette = -1;
 
-let vmVars = new Array(256);
-let vmTasks = new Array(64);
-
 let bytecode: Uint8Array;
 let polygons1: Uint8Array;
 let polygons2: Uint8Array;
 let bytecode_offset: number;
+
 let task_num: number;
 let task_paused: boolean;
 
@@ -68,9 +72,8 @@ let current_part = 0;
 
 let timestamp: number;
 
-var stats = new Stats();
+const stats = new Stats();
 stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild( stats.dom );
 
 function read_byte(): number {
   const value = bytecode[bytecode_offset];
@@ -115,6 +118,7 @@ const vm = {
     vmVars[num] += imm;
     // gun sound workaround to do
     if (current_part === 16006) {
+      /* Playing a sound. */
       play_sound(0x5B, 1, 64, 1);
     }
   },
@@ -226,14 +230,16 @@ const vm = {
     const num = read_byte();
 
     const delay = Date.now() - timestamp;
-    const timeToSleep = vmVars[VAR.PAUSE_SLICES] * 1000 / 50 - delay;
+    const INTERVAL = is_key_pressed(KEY_CODE.FF) ? 0 : 50;
+    const timeToSleep = vmVars[VAR.PAUSE_SLICES] * 20 * INTERVAL / 50 - delay;
 
-    if (timeToSleep > 0 && timeToSleep < 1000) {
-      timestamp = Date.now();
+    if (timeToSleep > 0) {
       const t = timestamp + timeToSleep;
       while (timestamp < t) {
         timestamp = Date.now();
       }
+    } else {
+      timestamp = Date.now();
     }
 
     vmVars[VAR.WTF] = 0;
@@ -356,42 +362,13 @@ function execute_task() {
       draw_shape(polygons, offset, 0xff, zoom, x, y);
     } else {
       console.assert(opcode <= 0x1a);
-      vm[opcode as OP_CODE]();
+      if (!vm[opcode as OP_CODE]) {
+        console.log(`opcode ${opcode} not implemented`);
+      } else {
+        vm[opcode as OP_CODE]();
+      }
     }
   }
-}
-
-function update_input() {
-  let mask = 0;
-  if (is_key_pressed(KEY_CODE.RIGHT)) {
-    vmVars[VAR.HERO_POS_LEFT_RIGHT] = 1;
-    mask |= 1;
-  } else if (is_key_pressed(KEY_CODE.LEFT)) {
-    vmVars[VAR.HERO_POS_LEFT_RIGHT] = -1;
-    mask |= 2;
-  } else {
-    vmVars[VAR.HERO_POS_LEFT_RIGHT] = 0;
-  }
-  if (is_key_pressed(KEY_CODE.DOWN)) {
-    vmVars[VAR.HERO_POS_JUMP_DOWN] = 1;
-    vmVars[VAR.HERO_POS_UP_DOWN] = 1;
-    mask |= 4;
-  } else if (is_key_pressed(KEY_CODE.UP)) {
-    vmVars[VAR.HERO_POS_JUMP_DOWN] = -1;
-    vmVars[VAR.HERO_POS_UP_DOWN] = -1;
-    mask |= 8;
-  } else {
-    vmVars[VAR.HERO_POS_JUMP_DOWN] = 0;
-    vmVars[VAR.HERO_POS_UP_DOWN] = 0;
-  }
-  vmVars[VAR.HERO_POS_MASK] = mask;
-  if (is_key_pressed(KEY_CODE.ACTION)) {
-    vmVars[VAR.HERO_ACTION] = 1;
-    mask |= 0x80;
-  } else {
-    vmVars[VAR.HERO_ACTION] = 0;
-  }
-  vmVars[VAR.HERO_ACTION_POS_MASK] = mask;
 }
 
 function run_tasks() {
@@ -440,8 +417,7 @@ function restart(part: number) {
   polygons2 = load(ResPart[6], ResPart[7]);
 
   for (let i = 0; i < vmTasks.length; ++i) {
-    vmTasks[i] = { state: 0, next_state: 0, offset: -1, next_offset: -1 };
-    vmTasks[i].stack = new Array();
+    vmTasks[i] = { state: 0, next_state: 0, offset: -1, next_offset: -1, stack: [] };
   }
   vmTasks[0].offset = 0;
 }
@@ -705,7 +681,7 @@ function draw_char(
 
 function draw_string(num: number, color: number, x: number, y: number) {
   let strings: Record<string, string> = strings_en;
-  if (strings_language == STRINGS_LANGUAGE_FR && num in strings_fr) {
+  if (strings_language == STRINGS_LANGUAGE.FR && num in strings_fr) {
     strings = strings_fr;
   }
   if (num in strings) {
@@ -776,8 +752,9 @@ function update_display(num: number) {
   );
 }
 
-function save_state() {
+function get_state(): State {
   return {
+    part: current_part,
     vars: vmVars.slice(),
     tasks: JSON.parse(JSON.stringify(vmTasks)),
     buffer8: buffer8.slice(),
@@ -785,40 +762,14 @@ function save_state() {
   };
 }
 
-function load_state(state: any) {
-  vmVars = state.vars;
-  vmTasks = state.tasks;
+function restore_state(state: State) {
+  vmVars.splice(0, vmVars.length, ...state.vars);
+  vmTasks.splice(0, vmTasks.length, ...state.tasks)
   buffer8 = state.buffer8;
   palette32 = state.palette32;
 }
 
-// METHODS
-export function reset() {
-  current_page2 = 1;
-  current_page1 = 2;
-  current_page0 = get_page(0xfe);
-  buffer8.fill(0);
-  next_palette = -1;
-  vmVars.fill(0);
-
-  vmVars[VAR.RANDOM_SEED] = Date.now();
-
-  if (BYPASS_PROTECTION) {
-    vmVars[0xbc] = 0x10;
-    vmVars[0xc6] = 0x80;
-    vmVars[0xf2] = 4000; // 4000 for Amiga bytecode
-    vmVars[0xdc] = 33;
-  }
-  vmVars[0xe4] = 20;
-  next_part = (isDemo || BYPASS_PROTECTION) ? 16001 : 16000;
-  timestamp = rewind_timestamp = Date.now();
-  rewind_buffer.length = 0;
-  player.stopMusic();
-}
-
-export function tick() {
-  clearTimeout(timer);
-
+function tick() {
   const current = Date.now();
 
   stats.begin();
@@ -829,25 +780,57 @@ export function tick() {
     if (rewind_buffer.length == REWIND_SIZE) {
       rewind_buffer.shift();
     }
-    rewind_buffer.push(save_state());
+    rewind_buffer.push(get_state());
     rewind_timestamp = current;
   }
 
-  INTERVAL = is_key_pressed(KEY_CODE.FF) ? 10 : 50;
-  timer = setTimeout(() => {
-    tick();
-  }, INTERVAL) as unknown as number;
+  timer = requestAnimationFrame(tick);
 }
 
-export function pause() {
+function reset() {
+  current_page2 = 1;
+  current_page1 = 2;
+  current_page0 = get_page(0xfe);
+  buffer8.fill(0);
+  next_palette = -1;
+  vmVars.fill(0);
+
+  vmVars[VAR.RANDOM_SEED] = Date.now();
+  // vmVars[VAR.HACK_VAR_54] = 0x0081;
+
+  if (BYPASS_PROTECTION) {
+    vmVars[VAR.HACK_VAR_BC] = 0x10;
+    vmVars[VAR.HACK_VAR_C6] = 0x80;
+    vmVars[VAR.HACK_VAR_F2] = 4000; // 4000 for Amiga bytecode
+    vmVars[VAR.HACK_VAR_DC] = 33;
+  }
+  vmVars[VAR.HACK_VAR_E4] = 20;
+  next_part = (isDemo || BYPASS_PROTECTION) ? 16001 : 16000;
+  rewind_timestamp = Date.now();
+  rewind_buffer.length = 0;
+
+  player?.stopMusic();
+}
+
+function change_part(num: number) {
+  next_part = 16000 + num;
+  restart(next_part);
+  current_part = next_part;
+  next_part = 0;
+}
+
+// METHODS
+export function resetVm() {
+  reset();
+}
+
+export function pauseVm() {
   if (timer) {
-    clearTimeout(timer);
+    cancelAnimationFrame(timer);
     timer = null;
     player.pause();
     return true;
   }
-  // reset timestamp otherwise engine
-  // would skip <pause duration> time
 
   timestamp = Date.now();
   player.resume();
@@ -855,46 +838,66 @@ export function pause() {
   return false;
 }
 
-export function rewind() {
-  if (rewind_buffer.length != 0) {
-    // console.log( 'rewind pos:' + rewind_buffer.length );
-    let state = rewind_buffer.pop();
-    load_state(state);
+export function saveVm() {
+  saved_state = get_state();
+}
+
+export function loadVm() {
+  if (saved_state) {
+    restore_state(saved_state);
   }
 }
 
-export function change_palette(num: number) {
+export function rewindVm() {
+  if (rewind_buffer.length != 0) {
+    // console.log( 'rewind pos:' + rewind_buffer.length );
+    let state = rewind_buffer.pop();
+    restore_state(state);
+  }
+}
+
+export function setPallet(num: number) {
   palette_type = num;
 }
 
-export function change_part(num: number) {
-  next_part = 16000 + num;
-  restart(next_part);
-  current_part = next_part;
-  next_part = 0;
+let prevPart: number = null;
+
+export function passwordScreen() {
+  if (prevPart) {
+    change_part(prevPart);
+    prevPart = null;
+  } else {
+    prevPart = current_part - 16000;
+    change_part(8);
+  }
 }
 
-export function password_screen() {
-  change_part(8);
-}
-
-export function change_language(num: number) {
+export function changeLang(num: number) {
   strings_language = num;
 }
 
-export function set_1991_resolution(low: boolean) {
+export function setResolution(low: boolean) {
   is_1991 = low;
 }
 
-export async function initVm(name: string) {
-  init_canvas(name, SCREEN_W, SCREEN_H, SCALE);
+export function toggleResolution() {
+  setResolution(!is_1991);
+}
+
+export function changePart(num: number) {
+  change_part(num);
+}
+
+export async function initVm(canvas: HTMLCanvasElement) {
+  init_canvas(canvas, SCREEN_W, SCREEN_H, SCALE);
 
   await init_sounds();
   bind_events();
-  load_modules();
 
   reset();
   tick();
+
+  document.body.appendChild( stats.dom );
 }
 
 // PALETTE
@@ -937,56 +940,3 @@ function set_palette_bmp(data: Uint8Array) {
   }
 }
 
-// SOUNDS
-let player: SfxPlayer;
-
-async function init_sounds() {
-  player = new SfxPlayer((variable: number, value: number) => {
-    vmVars[variable] = value;
-  });
-  await player.init();
-  load_sounds();
-}
-
-function play_music(resNum: number, delay: number, pos: number) {
-  if (resNum !== 0) {
-    // _ply->loadSfxModule(resNum, delay, pos);
-    player.loadSfxModule(resNum, delay, pos, DATA);
-    player.startMusic();
-    player.playMusic();
-  } else if (delay !== 0) {
-    player.setEventsDelay(delay, true);
-  } else {
-    player.stopMusic();
-  }
-}
-
-function play_sound(
-  resNum: number,
-  freq: number,
-  vol: number,
-  channel: number
-) {
-  if (vol === 0) {
-    player.stopSoundChannel(channel);
-    return;
-  }
-  if (vol > 63) {
-    vol = 63;
-  }
-  try {
-    if (DATA.sounds[resNum]) {
-      const [, , me] = DATA.sounds[resNum] as any;
-      if (me) {
-        // assert(freq < 40);
-        if (freq >= 40) {
-          console.error(`Assertion failed: $({freq} < 40`);
-        }
-        player.playSoundRaw(channel & 3, me, _freqTable[freq], vol);
-      }
-    }
-  } catch (e) {
-    console.error(`Could not play raw sound ${resNum}`);
-    debugger;
-  }
-}

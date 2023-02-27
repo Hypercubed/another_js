@@ -2,7 +2,7 @@ let SCALE = 2;
 let SCREEN_W = 320 * 2;
 let SCREEN_H = 200 * 2;
 
-let canvas: HTMLCanvasElement;
+let _canvas: HTMLCanvasElement;
 
 export function update_screen(
   buffer: Uint8Array,
@@ -12,7 +12,7 @@ export function update_screen(
   offset: number,
   is_1991: boolean
 ) {
-  let context = canvas.getContext("2d");
+  let context = _canvas.getContext("2d");
   let data = context.getImageData(0, 0, SCREEN_W, SCREEN_H);
   let rgba = new Uint32Array(data.data.buffer);
   if (is_1991) {
@@ -44,8 +44,8 @@ export function update_screen(
   context.putImageData(data, 0, 0);
 }
 
-export function init_canvas(name: string, W: number, H: number, S: number) {
-  canvas = document.getElementById(name) as HTMLCanvasElement;
+export function init_canvas(canvas: HTMLCanvasElement, W: number, H: number, S: number) {
+  _canvas = canvas;
 
   SCALE = S;
   SCREEN_W = W;
@@ -64,5 +64,5 @@ const _enterFullscreen = (elem: any, options?: any) => {
 };
 
 export function enterFullscreen() {
-  _enterFullscreen(canvas);
+  _enterFullscreen(_canvas);
 }
