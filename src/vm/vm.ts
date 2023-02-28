@@ -1,4 +1,14 @@
-import { DATA, font, isDemo, load, PARTS, strings_en, strings_fr, STRINGS_LANGUAGE } from "../resources";
+import {
+  DATA,
+  font,
+  isDemo,
+  load,
+  GAME_PART,
+  partsList,
+  strings_en,
+  strings_fr,
+  STRINGS_LANGUAGE,
+} from "../resources";
 
 import * as screen from "./canvas";
 import * as palette from "./palette";
@@ -27,6 +37,8 @@ const SCALE = 3;
 const SCREEN_W = 320 * SCALE;
 const SCREEN_H = 200 * SCALE;
 const PAGE_SIZE = SCREEN_W * SCREEN_H;
+
+const FPS = 50;
 
 let buffer8 = new Uint8Array(4 * PAGE_SIZE);
 let current_page0: number; // current
@@ -71,7 +83,8 @@ function to_signed(value: number, bits: number) {
 function execute_task() {
   while (!task_paused) {
     const opcode = read_byte();
-    if (opcode & DRAW_POLY_BACKGROUND) { // DRAW_POLY_BACKGROUND
+    if (opcode & DRAW_POLY_BACKGROUND) {
+      // DRAW_POLY_BACKGROUND
       const offset = (((opcode << 8) | read_byte()) << 1) & 0xfffe;
       let x = read_byte();
       let y = read_byte();
@@ -81,7 +94,8 @@ function execute_task() {
         x += h;
       }
       draw_shape(polygons1, offset, 0xff, 64, x, y);
-    } else if (opcode & DRAW_POLY_SPRITE) { // DRAW_POLY_SPRITE
+    } else if (opcode & DRAW_POLY_SPRITE) {
+      // DRAW_POLY_SPRITE
       const offset = (read_word() << 1) & 0xfffe;
       let x = read_byte();
       if ((opcode & 0x20) == 0) {
@@ -146,6 +160,7 @@ export function run_tasks() {
 
   controls.pollGamepads();
   controls.update_input();
+  // draw_text("Another World JS", 20, 20, 0x0f);
 
   for (let i = 0; i < memory.vmTasks.length; ++i) {
     if (memory.vmTasks[i].state == 0) {
@@ -162,8 +177,8 @@ export function run_tasks() {
   }
 }
 
-function restart(part: number) {
-  const ResPart = PARTS[part];
+function restart(part: number, pos: number = 0) {
+  const ResPart = partsList[part];
   if (!ResPart) {
     throw "Part not found: " + part;
   }
@@ -174,9 +189,17 @@ function restart(part: number) {
   polygons2 = load(ResPart[6], ResPart[7]);
 
   for (let i = 0; i < memory.vmTasks.length; ++i) {
-    memory.vmTasks[i] = { state: 0, next_state: 0, offset: -1, next_offset: -1, stack: [] };
+    memory.vmTasks[i] = {
+      state: 0,
+      next_state: 0,
+      offset: -1,
+      next_offset: -1,
+      stack: [],
+    };
   }
+
   memory.vmTasks[0].offset = 0;
+  memory.vmVars[0] = pos;
 }
 
 function get_page(num: number): number {
@@ -442,17 +465,21 @@ function draw_string(num: number, color: number, x: number, y: number) {
     strings = strings_fr;
   }
   if (num in strings) {
-    const x0 = x;
     const str = strings[num];
-    for (let i = 0; i < str.length; ++i) {
-      const chr = str.charCodeAt(i);
-      if (chr == 10) {
-        y += 8;
-        x = x0;
-      } else {
-        draw_char(current_page0, chr, color, x, y);
-        x += 1;
-      }
+    draw_text(str, color, x, y);
+  }
+}
+
+export function draw_text(str: string, color: number, x: number, y: number) {
+  const x0 = x;
+  for (let i = 0; i < str.length; ++i) {
+    const chr = str.charCodeAt(i);
+    if (chr == 10) {
+      y += 8;
+      x = x0;
+    } else {
+      draw_char(current_page0, chr, color, x, y);
+      x += 1;
     }
   }
 }
@@ -521,14 +548,14 @@ const vm = {
     memory.vmVars[dst] += memory.vmVars[src];
   },
   [OP_CODE.addConst]() {
+    // gun sound workaround
+    // if (current_part === GAME_PART.BATHS) {
+    //   sound.play_sound(0x5B, 1, 64, 1);
+    // }
+
     const num = read_byte();
     const imm = to_signed(read_word(), 16);
     memory.vmVars[num] += imm;
-    // gun sound workaround to do
-    if (current_part === 16006) {
-      /* Playing a sound. */
-      sound.play_sound(0x5B, 1, 64, 1);
-    }
   },
   [OP_CODE.call]() {
     const addr = read_word();
@@ -635,23 +662,30 @@ const vm = {
     copy_page(src, dst, memory.vmVars[VAR.SCROLL_Y]);
   },
   [OP_CODE.blitFramebuffer]() {
-    const num = read_byte();
+    const pageId = read_byte();
 
-    const delay = Date.now() - timestamp;
-    const INTERVAL = controls.is_key_pressed(KEY_CODE.FF) ? 0 : 50;
-    const timeToSleep = memory.vmVars[VAR.PAUSE_SLICES] * 20 * INTERVAL / 50 - delay;
+    const fastMode = controls.is_key_pressed(KEY_CODE.FF);
 
-    if (timeToSleep > 0) {
-      const t = timestamp + timeToSleep;
-      while (timestamp < t) {
-        timestamp = Date.now();
+    if (!fastMode && memory.vmVars[VAR.PAUSE_SLICES] !== 0) {
+      const delay = Date.now() - timestamp;
+
+      // The bytecode will set vmVariables[VM_VARIABLE_PAUSE_SLICES] from 1 to 5
+      // The virtual machine hence indicate how long the image should be displayed.
+      const timeToSleep =
+        (memory.vmVars[VAR.PAUSE_SLICES] * 1000) / FPS - delay;
+
+      if (timeToSleep > 0) {
+        const t = timestamp + timeToSleep;
+        while (timestamp < t) {
+          timestamp = Date.now();
+        }
       }
-    } else {
-      timestamp = Date.now();
     }
 
+    timestamp = Date.now();
+
     memory.vmVars[VAR.WTF] = 0;
-    update_display(num);
+    update_display(pageId);
   },
   [OP_CODE.killThread]() {
     bytecode_offset = -1;
@@ -684,7 +718,8 @@ const vm = {
     const imm = read_word() & 15;
     memory.vmVars[num] = to_signed((memory.vmVars[num] << imm) & 0xffff, 16);
   },
-  [OP_CODE.shr]() { // shr
+  [OP_CODE.shr]() {
+    // shr
     const num = read_byte();
     const imm = read_word() & 15;
     memory.vmVars[num] = to_signed((memory.vmVars[num] & 0xffff) >> imm, 16);
@@ -698,7 +733,7 @@ const vm = {
   },
   [OP_CODE.updateMemList]() {
     const num = read_word();
-    if (num > 16000) {
+    if (num > GAME_PART.PROTECTION) {
       next_part = num;
     } else if (num in DATA.bitmaps) {
       if (num >= 3000) {
@@ -732,7 +767,7 @@ export function get_state(): State {
 
 export function restore_state(state: State) {
   memory.vmVars.splice(0, memory.vmVars.length, ...state.vars);
-  memory.vmTasks.splice(0, memory.vmTasks.length, ...state.tasks)
+  memory.vmTasks.splice(0, memory.vmTasks.length, ...state.tasks);
   buffer8 = state.buffer8;
   palette.set_palette32(state.palette32);
 }
@@ -756,16 +791,70 @@ export function reset() {
   }
   memory.vmVars[VAR.HACK_VAR_E4] = 20;
 
-  next_part = (isDemo || BYPASS_PROTECTION) ? 16001 : 16000;
+  next_part =
+    isDemo || BYPASS_PROTECTION ? GAME_PART.INTRODUCTION : GAME_PART.PROTECTION;
   sound.player?.stopMusic();
 }
 
-export function change_part(num: number) {
-  next_part = 16000 + num;
-  restart(next_part);
+export function change_part(num: number, pos = 0) {
+  next_part = num;
+  restart(next_part, pos);
   current_part = next_part;
   next_part = 0;
 }
+
+// const restartPos: any = [
+// 	[16008,  0],
+//   [16001,  0],
+//   [16002, 10],
+//   [16002, 12],
+//   [16002, 14],
+// 	[16003, 20],
+//   [16003, 24],
+//   [16003, 26],
+//   [16004, 30],
+//   [16004, 31],
+// 	[16004, 32],
+//   [16004, 33],
+//   [16004, 34],
+//   [16004, 35],
+//   [16004, 36],
+// 	[16004, 37],
+//   [16004, 38],
+//   [16004, 39],
+//   [16004, 40],
+//   [16004, 41],
+// 	[16004, 42],
+//   [16004, 43],
+//   [16004, 44],
+//   [16004, 45],
+//   [16004, 46],
+// 	[16004, 47],
+//   [16004, 48],
+//   [16004, 49],
+//   [16006, 64],
+//   [16006, 65],
+// 	[16006, 66],
+//   [16006, 67],
+//   [16006, 68],
+//   [16005, 50],
+//   [16006, 60],
+// 	[16007, 0]
+// ];
+
+// export function next() {
+//   const part = current_part + 1;
+//   if (part in partsList) {
+//     change_part(part);
+//   }
+// }
+
+// export function prev() {
+//   const part = current_part - 1;
+//   if (part in partsList) {
+//     change_part(part);
+//   }
+// }
 
 export function set_language(num: number) {
   strings_language = num;

@@ -7,10 +7,7 @@ let is_1991 = false;
 
 let _canvas: HTMLCanvasElement;
 
-export function update(
-  buffer: Uint8Array,
-  offset: number
-) {
+export function update(buffer: Uint8Array, offset: number) {
   let context = _canvas.getContext("2d");
   let data = context.getImageData(0, 0, SCREEN_W, SCREEN_H);
   let rgba = new Uint32Array(data.data.buffer);
@@ -18,7 +15,8 @@ export function update(
     let rgba_offset = 0;
     for (let y = 0; y < SCREEN_H; y += SCALE) {
       for (let x = 0; x < SCREEN_W; x += SCALE) {
-        const color = palette.palette32[palette.palette_type * 16 + buffer[offset + x]];
+        const color =
+          palette.palette32[palette.palette_type * 16 + buffer[offset + x]];
         for (let j = 0; j < SCALE; ++j) {
           rgba.fill(
             color,
@@ -43,7 +41,12 @@ export function update(
   context.putImageData(data, 0, 0);
 }
 
-export function init(canvas: HTMLCanvasElement, W: number, H: number, S: number) {
+export function init(
+  canvas: HTMLCanvasElement,
+  W: number,
+  H: number,
+  S: number
+) {
   _canvas = canvas;
 
   SCALE = S;
@@ -73,4 +76,3 @@ export function set_resolution(low: boolean) {
 export function toggle_resolution() {
   is_1991 = !is_1991;
 }
-

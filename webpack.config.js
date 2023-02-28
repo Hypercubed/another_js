@@ -51,6 +51,6 @@ module.exports = {
     new CleanWebpackPlugin(),
   ],
   experiments: {
-    topLevelAwait: true
-  }
+    topLevelAwait: true,
+  },
 };

@@ -38,7 +38,7 @@ export const enum OP_CODE {
   /* 0x18 */
   playSound,
   updateMemList,
-  playMusic
+  playMusic,
 }
 
 export const DRAW_POLY_BACKGROUND = 0x80;

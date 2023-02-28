@@ -4,6 +4,7 @@ import * as sound from "./sound";
 import * as vm from "./vm";
 
 import type { State } from "./vm";
+import { GAME_PART } from "../resources";
 
 let stats: Stats;
 
@@ -17,8 +18,7 @@ let rewind_timestamp: number;
 const REWIND_SIZE = 50;
 const REWIND_INTERVAL = 1000;
 
-let /* It's used to switch between the code and the game. */
-prevPart: number = null;
+let prevPart: number = null;
 
 function tick() {
   const current = Date.now();
@@ -40,13 +40,17 @@ function tick() {
 
 export function start() {
   stats = new Stats();
-  stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.body.appendChild( stats.dom );
+  stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.dom);
 
   rewind_timestamp = Date.now();
   rewind_buffer.length = 0;
 
   tick();
+
+  // setInterval(() => {
+  //   vm.draw_text("Another World JS", 20, 20, 0x0f);
+  // }, 1000);
 }
 
 export function pause() {
@@ -75,8 +79,8 @@ export function code() {
     prevPart = null;
   } else {
     const { part } = vm.get_state();
-    prevPart = part - 16000;
-    vm.change_part(8);
+    prevPart = part;
+    vm.change_part(GAME_PART.CODE);
   }
 }
 
@@ -95,4 +99,3 @@ export function reset() {
   rewind_timestamp = Date.now();
   rewind_buffer.length = 0;
 }
-

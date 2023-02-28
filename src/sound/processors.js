@@ -99,11 +99,7 @@ class SfxRawProcessor extends AudioWorkletProcessor {
     }
   }
 
-  process(
-    _inputs,
-    outputs,
-    _parameters
-  ) {
+  process(_inputs, outputs, _parameters) {
     if (this._ready && this._playing) {
       this.mixChannels(outputs[0], outputs[0][0].length);
     }

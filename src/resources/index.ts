@@ -11,12 +11,34 @@ interface Data {
 }
 
 interface Parts {
-  [key: number]: [string, number, string, number, string, number, string, number];
+  [key: number]: [
+    string,
+    number,
+    string,
+    number,
+    string,
+    number,
+    string,
+    number
+  ];
 }
 
 let isDemo = true;
-let PARTS: Parts = null;
+let partsList: Parts = null;
 let DATA: Data = null;
+
+export const enum GAME_PART {
+  PROTECTION = 0x3e80, // Code-wheel screen
+  INTRODUCTION = 0x3e81, // Intro Sequence
+  WATER = 0x3e82, // Arrival at the Lake & Beast Chase
+  JAIL = 0x3e83, // Prison Escape
+  CITY = 0x3e84, // Gas tunnels, Caves and Pool
+  ARENA = 0x3e85, // Tank in the Battle Arena
+  BATHS = 0x3e86, // Capsule Lands at the Bath
+  FINAL = 0x3e87, // Game Ending Sequence
+  CODE = 0x3e88, // Secret Code Entry Screen
+  CODE2 = 0x3e89, // Secret Code Entry Screen
+}
 
 try {
   /* @ts-ignore */
@@ -29,8 +51,8 @@ try {
 
   isDemo = false;
 
-  PARTS = {
-    16000: [
+  partsList = {
+    [GAME_PART.PROTECTION]: [
       RES.data14,
       RES.size14,
       RES.data15,
@@ -39,8 +61,8 @@ try {
       RES.size16,
       null,
       null,
-    ], // protection
-    16001: [
+    ],
+    [GAME_PART.INTRODUCTION]: [
       RES.data17,
       RES.size17,
       RES.data18,
@@ -49,8 +71,8 @@ try {
       RES.size19,
       null,
       null,
-    ], // introduction
-    16002: [
+    ],
+    [GAME_PART.WATER]: [
       RES.data1a,
       RES.size1a,
       RES.data1b,
@@ -59,8 +81,8 @@ try {
       RES.size1c,
       RES.data11,
       RES.size11,
-    ], // water
-    16003: [
+    ],
+    [GAME_PART.JAIL]: [
       RES.data1d,
       RES.size1d,
       RES.data1e,
@@ -69,8 +91,8 @@ try {
       RES.size1f,
       RES.data11,
       RES.size11,
-    ], // jail
-    16004: [
+    ],
+    [GAME_PART.CITY]: [
       RES.data20,
       RES.size20,
       RES.data21,
@@ -79,8 +101,8 @@ try {
       RES.size22,
       RES.data11,
       RES.size11,
-    ], // city
-    16005: [
+    ],
+    [GAME_PART.ARENA]: [
       RES.data23,
       RES.size23,
       RES.data24,
@@ -89,8 +111,8 @@ try {
       RES.size25,
       RES.data11,
       RES.size11,
-    ], // arena
-    16006: [
+    ],
+    [GAME_PART.BATHS]: [
       RES.data26,
       RES.size26,
       RES.data27,
@@ -99,8 +121,8 @@ try {
       RES.size28,
       RES.data11,
       RES.size11,
-    ], // luxury
-    16007: [
+    ],
+    [GAME_PART.FINAL]: [
       RES.data29,
       RES.size29,
       RES.data2a,
@@ -109,8 +131,8 @@ try {
       RES.size2b,
       RES.data11,
       RES.size11,
-    ], // final
-    16008: [
+    ],
+    [GAME_PART.CODE]: [
       RES.data7d,
       RES.size7d,
       RES.data7e,
@@ -119,7 +141,17 @@ try {
       RES.size7f,
       null,
       null,
-    ], // password screen
+    ],
+    [GAME_PART.CODE2]: [
+      RES.data7d,
+      RES.size7d,
+      RES.data7e,
+      RES.size7e,
+      RES.data7f,
+      RES.size7f,
+      null,
+      null,
+    ],
   };
 
   DATA = {
@@ -127,15 +159,14 @@ try {
     sounds: RES.sounds as unknown as Resource,
     modules: RES.modules as unknown as Resource,
   };
-
 } catch (e) {
   /* @ts-ignore */
   const RES = await import(/* webpackIgnore: true */ "./ootw-demo.js");
 
   console.log("loaded ootw-demo.js");
 
-  PARTS = {
-    16001: [
+  partsList = {
+    [GAME_PART.INTRODUCTION]: [
       RES.data17,
       RES.size17,
       RES.data18,
@@ -144,8 +175,8 @@ try {
       RES.size19,
       null,
       null,
-    ], // introduction
-    16002: [
+    ],
+    [GAME_PART.WATER]: [
       RES.data1a,
       RES.size1a,
       RES.data1b,
@@ -154,7 +185,7 @@ try {
       RES.size1c,
       RES.data11,
       RES.size11,
-    ], // water
+    ],
   };
 
   DATA = {
@@ -208,4 +239,4 @@ export function load(data: string, size: number) {
   return buf;
 }
 
-export { isDemo, PARTS, DATA };
+export { isDemo, partsList, DATA };

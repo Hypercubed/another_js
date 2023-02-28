@@ -1,6 +1,6 @@
 export const enum STRINGS_LANGUAGE {
   EN = 0,
-  FR = 1
+  FR = 1,
 }
 
 export const strings_en = {
@@ -158,6 +158,7 @@ export const strings_en = {
     "           Jesus Martinez\n\n          Daniel Morais\n\n        Frederic Savoir\n\n      Cecile Chahi\n\n    Philippe Delamarre\n\n  Philippe Ulrich\n\nSebastien Berthet\n\nPierre Gousseau",
   0x265: "Now Go Out Of This World",
 };
+
 export const strings_fr = {
   0x022: "--- Etude theorique ---",
   0x023: " L'EXPERIENCE DEBUTERA DANS    SECONDES.",
@@ -212,6 +213,7 @@ export const strings_fr = {
   0x263: "               Merci a",
   0x265: "Now Go Back To Another Earth",
 };
+
 export const font = [
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x10, 0x10, 0x10, 0x10,
   0x00, 0x10, 0x00, 0x28, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24,

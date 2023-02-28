@@ -9,7 +9,7 @@ export const enum KEY_CODE {
   LEFT = 4,
   ACTION = 5,
   JUMP = 6,
-  FF = 7
+  FF = 7,
 }
 
 let gamepadState = new Array(6);
@@ -39,7 +39,8 @@ export function pollGamepads() {
     gamepadState[KEY_CODE.JUMP] = buttonPressed(gamepad.buttons[1]);
     gamepadState[KEY_CODE.ACTION] = buttonPressed(gamepad.buttons[0]);
 
-    gamepadState[KEY_CODE.FF] = buttonPressed(gamepad.buttons[5]) || buttonPressed(gamepad.buttons[7]);
+    gamepadState[KEY_CODE.FF] =
+      buttonPressed(gamepad.buttons[5]) || buttonPressed(gamepad.buttons[7]);
   }
 }
 
@@ -48,16 +49,19 @@ export function is_key_pressed(code: number) {
 }
 
 const controls = {
-  Control: KEY_CODE.ACTION,
+  " ": KEY_CODE.ACTION,
+  Enter: KEY_CODE.ACTION,
   Shift: KEY_CODE.JUMP,
   ArrowUp: KEY_CODE.UP,
   ArrowDown: KEY_CODE.DOWN,
   ArrowLeft: KEY_CODE.LEFT,
   ArrowRight: KEY_CODE.RIGHT,
-  f: KEY_CODE.FF
-}
+  f: KEY_CODE.FF,
+};
 
 function set_key_pressed(e: KeyboardEvent, state: unknown) {
+  console.log(e.key);
+
   if (e.key in controls) {
     e.preventDefault();
     const code: KEY_CODE = controls[e.key as keyof typeof controls];

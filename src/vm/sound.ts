@@ -15,8 +15,8 @@ export let player: SfxPlayer;
 export async function init() {
   player = new SfxPlayer();
   await player.init();
-  if (!load_sounds() ){
-    console.log('error loading sounds');
+  if (!load_sounds()) {
+    console.log("error loading sounds");
     player = null;
   }
   load_modules();

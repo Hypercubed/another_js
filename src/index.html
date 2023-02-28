@@ -13,21 +13,14 @@
           <button id="start">
             <h1>Click to start</h1>
             <ul class="start-list">
+              <li>Move / Swim: Arrow keys or L-pad to control the player</li>
               <li>
-                Move / Swim: arrow keys or L-pad to control the player
+                Kick / Fire Weapon: <kbd>Space</kbd>,
+                <kbd class="gamepad">A</kbd>
               </li>
-              <li>
-                Kick / Fire Weapon: Ctrl, (A)
-              </li>
-              <li>
-                Jump: Shift, (B)
-              </li>
-              <li>
-                Pause: escape or (select)
-              </li>
-              <li>
-                Code screen: c or (start)
-              </li>
+              <li>Jump: <kbd>Shift</kbd>, <kbd class="gamepad">B</kbd></li>
+              <li>Pause: <kbd>Escape</kbd>, <kbd class="gamepad">≡</kbd></li>
+              <li>Code screen: <kbd>C</kbd>, <kbd class="gamepad">◲</kbd></li>
             </ul>
           </button>
         </div>
@@ -53,15 +46,15 @@
               </select>
               Part
               <select id="partSelect">
-                <option value="0">Copy Protection</option>
-                <option value="1">Introduction</option>
-                <option value="2">Water</option>
-                <option value="3">Jail</option>
-                <option value="4">Caves</option>
-                <option value="5">Arena</option>
-                <option value="6">Luxe</option>
-                <option value="7">Final</option>
-                <option value="8">Password screen</option>
+                <option value="16000">Copy Protection</option>
+                <option value="16001">Introduction</option>
+                <option value="16002">Water</option>
+                <option value="16003">Jail</option>
+                <option value="16004">Caves</option>
+                <option value="16005">Arena</option>
+                <option value="16006">Luxe</option>
+                <option value="16007">Final</option>
+                <option value="16008">Password screen</option>
               </select>
             </div>
             <p></p>
@@ -77,9 +70,8 @@
     </div>
 
     <audio id="audio" autoplay>
-      <source src="Another World.mp3" type="audio/mpeg">
+      <source src="Another World.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
-
   </body>
 </html>
