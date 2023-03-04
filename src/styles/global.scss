@@ -79,6 +79,10 @@ main {
       cursor: pointer;
       outline-offset: 0.2em;
       padding: 0;
+
+      &:hover {
+          outline: -webkit-focus-ring-color auto 1px;
+      }
     }
   }
 }
@@ -100,12 +104,26 @@ main {
   .app-index__help {
     position: relative;
     top: 45%;
-    left: 55%;
+    left: 45%;
     margin: 0;
     padding: 0;
 
     th, td {
       padding: 0.2em 0.75em;
+    }
+
+    td {
+      font-weight: bold;
+    }
+
+    th {
+      font-weight: bolder;
+    }
+
+    big {
+      font-size: 1.5em;
+      font-weight: bold;
+      font-style: italic;
     }
   }
 }

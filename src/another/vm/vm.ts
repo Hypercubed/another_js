@@ -30,6 +30,7 @@ export interface State {
 }
 
 const BYPASS_PROTECTION = true;
+const DEBUG = false;
 
 let strings_language = STRINGS_LANGUAGE.EN;
 
@@ -535,16 +536,19 @@ const vm = {
   [OP_CODE.movConst]() {
     const num = read_byte();
     const imm = to_signed(read_word(), 16);
+    DEBUG && console.info("VirtualMachine::op_movConst(%i, %i)", num, imm);
     memory.vmVars[num] = imm;
   },
   [OP_CODE.mov]() {
     const dst = read_byte();
     const src = read_byte();
+    DEBUG && console.info("VirtualMachine::op_mov(%i, %i)", dst, src);
     memory.vmVars[dst] = memory.vmVars[src];
   },
   [OP_CODE.add]() {
     const dst = read_byte();
     const src = read_byte();
+    DEBUG && console.info("VirtualMachine::op_add(%i, %i)", dst, src);
     memory.vmVars[dst] += memory.vmVars[src];
   },
   [OP_CODE.addConst]() {
@@ -555,31 +559,39 @@ const vm = {
 
     const num = read_byte();
     const imm = to_signed(read_word(), 16);
+    DEBUG && console.info("VirtualMachine::op_addConst(%i, %i)", num, imm);
     memory.vmVars[num] += imm;
   },
   [OP_CODE.call]() {
     const addr = read_word();
     memory.vmTasks[task_num].stack.push(bytecode_offset);
+    DEBUG && console.info("VirtualMachine::op_call(%i)", addr);
     bytecode_offset = addr;
   },
   [OP_CODE.ret]() {
+    DEBUG && console.info("VirtualMachine::op_ret()");
     bytecode_offset = memory.vmTasks[task_num].stack.pop()!;
   },
   [OP_CODE.pauseThread]() {
+    DEBUG && console.info("VirtualMachine::op_pauseThread()");
     task_paused = true;
   },
   [OP_CODE.jmp]() {
-    bytecode_offset = read_word();
+    const addr = read_word();
+    DEBUG && console.info("VirtualMachine::op_jmp(%i)", addr);
+    bytecode_offset = addr;
   },
   [OP_CODE.setSetVect]() {
     const num = read_byte();
     const addr = read_word();
+    DEBUG && console.info("VirtualMachine::op_setSetVect(%i, %i)", num, addr);
     memory.vmTasks[num].next_offset = addr;
   },
   [OP_CODE.jnz]() {
     const num = read_byte();
     memory.vmVars[num] -= 1;
     const addr = read_word();
+    DEBUG && console.info("VirtualMachine::op_jnz(%i, %i)", num, addr);
     if (memory.vmVars[num] != 0) {
       bytecode_offset = addr;
     }
@@ -596,6 +608,8 @@ const vm = {
       a = read_byte();
     }
     const addr = read_word();
+    DEBUG && console.info("VirtualMachine::op_condJmp(%i, %i, %i, %i)", op, b, a, addr);
+
     switch (op & 7) {
       case 0:
         if (b == a) {
@@ -630,12 +644,15 @@ const vm = {
     }
   },
   [OP_CODE.setPalette]() {
-    next_palette = read_word() >> 8;
+    const num = read_word();
+    DEBUG && console.info("VirtualMachine::op_setPalette(%i)", num);
+    next_palette = num >> 8;
   },
   [OP_CODE.resetThread]() {
     const start = read_byte();
     const end = read_byte();
     const state = read_byte();
+    DEBUG && console.info("VirtualMachine::op_resetThread(%i, %i, %i)", start, end, state);
     if (state == 2) {
       for (let i = start; i <= end; ++i) {
         memory.vmTasks[i].next_offset = -2;
@@ -649,45 +666,31 @@ const vm = {
   },
   [OP_CODE.selectVideoPage]() {
     const num = read_byte();
+    DEBUG && console.info("VirtualMachine::op_selectVideoPage(%i)", num);
     current_page0 = get_page(num);
   },
   [OP_CODE.fillVideoPage]() {
     const num = read_byte();
     const color = read_byte();
+    DEBUG && console.info("VirtualMachine::op_fillVideoPage(%i, %i)", num, color);
     fill_page(num, color);
   },
   [OP_CODE.copyVideoPage]() {
     const src = read_byte();
     const dst = read_byte();
+    DEBUG && console.info("VirtualMachine::op_copyVideoPage(%i, %i)", src, dst);
     copy_page(src, dst, memory.vmVars[VAR.SCROLL_Y]);
   },
   [OP_CODE.blitFramebuffer]() {
+    sleep();
+
     const pageId = read_byte();
-
-    const fastMode = controls.is_key_pressed(KEY_CODE.FF);
-
-    if (!fastMode && memory.vmVars[VAR.PAUSE_SLICES] !== 0) {
-      const delay = Date.now() - timestamp;
-
-      // The bytecode will set vmVariables[VM_VARIABLE_PAUSE_SLICES] from 1 to 5
-      // The virtual machine hence indicate how long the image should be displayed.
-      const timeToSleep =
-        (memory.vmVars[VAR.PAUSE_SLICES] * 1000) / FPS - delay;
-
-      if (timeToSleep > 0) {
-        const t = timestamp + timeToSleep;
-        while (timestamp < t) {
-          timestamp = Date.now();
-        }
-      }
-    }
-
-    timestamp = Date.now();
-
+    DEBUG && console.info("VirtualMachine::op_blitFramebuffer(%i)", pageId);
     memory.vmVars[VAR.WTF] = 0;
     update_display(pageId);
   },
   [OP_CODE.killThread]() {
+    DEBUG && console.info("VirtualMachine::op_killThread()");
     bytecode_offset = -1;
     task_paused = true;
   },
@@ -696,32 +699,37 @@ const vm = {
     const x = read_byte();
     const y = read_byte();
     const color = read_byte();
+    DEBUG && console.info("VirtualMachine::op_drawString(%i, %i, %i, %i)", num, x, y, color);
     draw_string(num, color, x, y);
   },
   [OP_CODE.sub]() {
     const dst = read_byte();
     const src = read_byte();
+    DEBUG && console.info("VirtualMachine::op_sub(%i, %i)", dst, src);
     memory.vmVars[dst] -= memory.vmVars[src];
   },
   [OP_CODE.and]() {
     const num = read_byte();
     const imm = read_word();
+    DEBUG && console.info("VirtualMachine::op_and(%i, %i)", num, imm);
     memory.vmVars[num] = to_signed(memory.vmVars[num] & imm & 0xffff, 16);
   },
   [OP_CODE.or]() {
     const num = read_byte();
     const imm = read_word();
+    DEBUG && console.info("VirtualMachine::op_or(%i, %i)", num, imm);
     memory.vmVars[num] = to_signed((memory.vmVars[num] | imm) & 0xffff, 16);
   },
   [OP_CODE.shl]() {
     const num = read_byte();
     const imm = read_word() & 15;
+    DEBUG && console.info("VirtualMachine::op_shl(%i, %i)", num, imm);
     memory.vmVars[num] = to_signed((memory.vmVars[num] << imm) & 0xffff, 16);
   },
   [OP_CODE.shr]() {
-    // shr
     const num = read_byte();
     const imm = read_word() & 15;
+    DEBUG && console.info("VirtualMachine::op_shr(%i, %i)", num, imm);
     memory.vmVars[num] = to_signed((memory.vmVars[num] & 0xffff) >> imm, 16);
   },
   [OP_CODE.playSound]() {
@@ -729,10 +737,12 @@ const vm = {
     const freq = read_byte();
     const volume = read_byte();
     const channel = read_byte();
+    DEBUG && console.info("VirtualMachine::op_playSound(%i, %i, %i, %i)", num, freq, volume, channel);
     sound.play_sound(num, freq, volume, channel);
   },
   [OP_CODE.updateMemList]() {
     const num = read_word();
+    DEBUG && console.info("VirtualMachine::op_updateMemList(%i)", num);
     if (num > GAME_PART.PROTECTION) {
       next_part = num;
     } else if (num in DATA!.bitmaps) {
@@ -750,9 +760,32 @@ const vm = {
     const num = read_word();
     const period = read_word();
     const position = read_byte();
+    DEBUG && console.info("VirtualMachine::op_playMusic(%i, %i, %i)", num, period, position);
     sound.play_music(num, period, position);
   },
 };
+
+function sleep() {
+  const fastMode = controls.is_key_pressed(KEY_CODE.FF);
+
+  if (!fastMode && memory.vmVars[VAR.PAUSE_SLICES] !== 0) {
+    const delay = Date.now() - timestamp;
+
+    // The bytecode will set vmVariables[VM_VARIABLE_PAUSE_SLICES] from 1 to 5
+    // The virtual machine hence indicate how long the image should be displayed.
+    const timeToSleep =
+      (memory.vmVars[VAR.PAUSE_SLICES] * 1000) / FPS - delay;
+
+    if (timeToSleep > 0) {
+      const t = timestamp + timeToSleep;
+      while (timestamp < t) {
+        timestamp = Date.now();
+      }
+    }
+  }
+
+  timestamp = Date.now();
+}
 
 // PUBLIC API
 export function get_state(): State {
@@ -862,11 +895,11 @@ export function set_language(num: number) {
 
 export async function init(canvas: HTMLCanvasElement) {
   screen.init(canvas, SCREEN_W, SCREEN_H, SCALE);
-  // await sound.init();
+  await sound.init();
 
-  // sound.player?.setModifyVarCallback((variable: number, value: number) => {
-  //   memory.vmVars[variable] = value;
-  // });
+  sound.player?.setModifyVarCallback((variable: number, value: number) => {
+    memory.vmVars[variable] = value;
+  });
 
   controls.bind_events();
   reset();

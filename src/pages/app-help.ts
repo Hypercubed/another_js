@@ -12,6 +12,11 @@ export class AppHelp extends LitElement {
     <div id="app-index__help-container">
       <table class="app-index__help">
         <tr>
+          <th></th>
+          <th>Keyboard</th>
+          <th>Gamepad</th>
+        </tr>
+        <tr>
           <th>Move / Swim</th>
           <td>Arrow Keys</td>
           <td>L-pad</td>

@@ -4,20 +4,20 @@ import { customElement } from 'lit/decorators.js';
 // @ts-ignore
 import { default as gameControl } from 'gamecontroller.js/src/gamecontrol.js';
 
-// import {router, ROUTES } from './app-router';
+import {router, ROUTES } from './app-router';
 
 import './pages/app-menu';
 import './pages/app-game';
 import './pages/app-help';
 import './styles/global.scss';
+import { Router } from '@vaadin/router';
 
 @customElement('app-index')
 export class AppIndex extends LitElement {
   private audioElm!: HTMLAudioElement;
-  private currentScreen = '';
 
   get inGame() {
-    return this.currentScreen === 'game';
+    return router.location.pathname === '/game';
   }
 
   createRenderRoot() {
@@ -48,35 +48,36 @@ export class AppIndex extends LitElement {
 
   firstUpdated() {
     this.audioElm = document.querySelector('#audio') as HTMLAudioElement;
-    // const outlet = document.querySelector('#app-index__main-container');
 
-    // router.setOutlet(outlet);
-    // router.setRoutes(ROUTES);
+    const outlet = document.querySelector('#app-index__main-container');
 
-    // window.addEventListener('vaadin-router-location-changed', (event) => {
-    //   console.log(event.detail.location.pathname);
-    //   this.audioElm.pause();
-    //   if (event.detail.location.pathname === '/game') {
-    //     this.audioElm.pause();
-    //   } else {
-    //     this.focusFirst();
-    //     this.audioElm.play();
-    //   }
+    router.setOutlet(outlet);
+    router.setRoutes(ROUTES);
 
-    //   setTimeout(() => {
-    //     this.focusFirst();
-    //   }, 200);
-    // });
+    window.addEventListener('vaadin-router-location-changed', (event) => {
+      this.audioElm.pause();
+      if (event.detail.location.pathname === '/game') {
+        this.audioElm.pause();
+      } else {
+        this.focusFirst();
+        this.audioElm.play();
+      }
+
+      setTimeout(() => {
+        this.focusFirst();
+      }, 200);
+    });
+
+    setTimeout(() => {
+      this.focusFirst();
+    }, 200);
   }
 
   render() {
-    const route = this.getCurrentRoute();
-
     return html`
       <div @dblclick=${() => this.onFullscreen()}>
         <main>
           <div id="app-index__main-container">
-            ${route}
           </div>
         </main>
         <audio id="audio" autoplay>
@@ -86,41 +87,29 @@ export class AppIndex extends LitElement {
     `;
   }
 
-  getCurrentRoute() {
-    switch (this.currentScreen) {
-      case 'game':
-        return html`<app-game></app-game>`;
-      case 'help':
-        return html`<app-help></app-help>`;
-      default:
-        return html`<app-menu></app-menu>`;
-    }
-  }
-
   onFullscreen() {
     fullscreen(this.querySelector('#app-index__main-container'));
   }
 
   onEscape() {
-    this.currentScreen = '';
-    this.requestUpdate();
+    Router.go('/');
   }
 
   onEnter() {
     if (this.inGame) return;
 
     const el = document.activeElement;
-    const href = el?.getAttribute('data-route');
+    const route = el?.getAttribute('data-route');
 
-    this.currentScreen = href || '';
-
-    if (this.inGame) {
-      this.audioElm.pause();
-    } else {
-      this.audioElm.play();
+    if (route) {
+      Router.go(route);
+      return;
     }
 
-    this.requestUpdate();
+    const href = el?.getAttribute('href');
+    if (href) {
+      window.location.href = href;
+    }
   }
 
   onKeypress = (e: KeyboardEvent) => {
@@ -129,15 +118,12 @@ export class AppIndex extends LitElement {
     switch (e.key) {
       case 'Enter':
       case ' ':
-        if (this.inGame) return;
         this.onEnter();
         break;
       case 'ArrowUp':
-        if (this.inGame) return;
         this.focusPrevious();
         break;
       case 'ArrowDown':
-        if (this.inGame) return;
         this.focusNext();
         break;
       case 'Escape':
@@ -146,16 +132,19 @@ export class AppIndex extends LitElement {
     }
   }
 
-  // private focusFirst() {
-  //   this.focusableItems[0]?.focus();
-  // }
+  private focusFirst() {
+    if (this.inGame) return;
+    this.focusableItems[0]?.focus();
+  }
 
   private focusNext() {
+    if (this.inGame) return;
     const index = mod(this.getFocusedElementIndex() + 1, this.focusableItems.length);
     this.focusableItems[index]?.focus();
   }
 
   private focusPrevious() {
+    if (this.inGame) return;
     const index = mod(this.getFocusedElementIndex() - 1, this.focusableItems.length);
     this.focusableItems[index]?.focus();
   }

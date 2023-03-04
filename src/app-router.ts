@@ -7,18 +7,27 @@ export const ROUTES = [
     path: BASE_URL,
     animate: true,
     children: [
-      { path: '', component: 'app-game' },
-      {
-        path: 'menu',
-        component: 'app-menu'
-      },
+      { path: '', component: 'app-menu' },
       {
         path: 'game',
-        component: 'app-game'
+        component: 'app-game',
+        action: async () => {
+          await import('./pages/app-game');
+        },
       },
       {
         path: 'help',
-        component: 'app-help'
+        component: 'app-help',
+        action: async () => {
+          await import('./pages/app-help');
+        }
+      },
+      {
+        path: 'credits',
+        component: 'app-credits',
+        action: async () => {
+          await import('./pages/app-credits');
+        }
       }
     ],
   },

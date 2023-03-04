@@ -48,7 +48,7 @@ export const enum GAME_PART {
     /* @ts-ignore */
     const RES = await import(/* @vite-ignore */ `/data/${FULL}.js`);
 
-    console.log('loaded ootw.js');
+    console.log(`loaded full game: ${FULL}`);
 
     isDemo = false;
 
@@ -164,7 +164,7 @@ export const enum GAME_PART {
     /* @ts-ignore */
     const RES = await import(/* @vite-ignore */ `/data/${DEMO}.js`);
 
-    console.log('loaded ootw-demo.js');
+    console.log(`loaded demo game: ${DEMO}`);
 
     partsList = {
       [GAME_PART.INTRODUCTION]: [
