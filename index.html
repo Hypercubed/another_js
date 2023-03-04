@@ -1,73 +1,66 @@
-<html>
-	<head>
-		<title>Another World JS</title>
-		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-		<meta name="viewport" content="width=device-width">
-	<script defer src="main.bundle.js"></script></head>
-	<body>
-		<div class="main">
-		<h1>Another World JS</h1>
-		<div>
-			<div class="intro">
-			<p>
-				This is a JavaScript port of <a href="https://www.mobygames.com/game/out-of-this-world">Another World</a> using the DOS demo data files.
-			</p>
-			<p>
-				Use:
-				<ul>
-					<li>arrow keys or left virtual stick to control the player</li>
-					<li>space/enter or right virtual stick to run or skip intro</li>
-					<li>double-click/double-tap on game screen to toggle fullscreen</li>
-				</ul>
-			</p>
-			</div>
-			<div id="preload">
-				<img src="screenshot-640.png" alt="" />
-				<button id="start">
-					Click to start
-				</button>
-			</div>
-			<div>
-				<div id="game">
-					<div class="square"></div>
-					<div class="square2"></div>
-					<canvas id="screen" width="640" height="400"></canvas>
-				</div>
-				<p></p>
-				<div>
-					<input type="button" value="Pause" id="pauseButton" />
-					<input type="button" value="Password" id="passwordButton" />
-					<input type="button" value="Reset" id="resetButton" />
-					<input type="button" value="Rewind" id="rewindButton" />
-					<select id="languageSelect">
-						<option>English</option>
-						<option>French</option>
-					</select>
-					Palette <select id="paletteSelect">
-						<option>Amiga</option>
-						<option>EGA</option>
-					</select>
-					Part <select id="partSelect">
-						<option value="0">Copy Protection</option>
-						<option value="1">Introduction</option>
-						<option value="2">Water</option>
-						<option value="3">Jail</option>
-						<option value="4">Cite</option>
-						<option value="5">Arena</option>
-						<option value="6">Luxe</option>
-						<option value="7">Final</option>
-						<option value="8">Password screen</option>
-					</select>
-				</div>
-				<p></p>
-				<div>
-					<input type="checkbox" id="resolutionCheckbox"><label for="resolutionCheckbox">1991 screen resolution (320x200)</label>
-				</div>
-			</div>
-		</div>
-		<footer>
-			<strong>another.js</strong> code is available on <a href="http://github.com/warpdesign/another_js">github.com</a>.
-		</footer>
-		</div>
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PWA Starter</title>
+
+    <base href="/" />
+
+    <!-- This meta viewport ensures the webpage's dimensions change according to the device it's on. This is called Responsive Web Design.-->
+    <meta
+      name="viewport"
+      content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0"
+    />
+    <meta name="description" content="This is a PWA Starter app" />
+
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#181818"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#f3f3f3"
+    />
+
+    <!-- These meta tags are Apple-specific, and set the web application to run in full-screen mode with a black status bar. Learn more at https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html-->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="PWA Starter" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <!-- Imports an icon to represent the document. -->
+    <link rel="icon" href="/assets/icons/icon_24.png" type="image/x-icon" />
+
+    <!-- Imports the manifest to represent the web application. A web app must have a manifest to be a PWA. -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- light mode and dark mode CSS -->
+    <link
+      rel="stylesheet"
+      media="(prefers-color-scheme:light)"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/themes/light.css"
+    />
+    <link
+      rel="stylesheet"
+      media="(prefers-color-scheme:dark)"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/themes/dark.css"
+      onload="document.documentElement.classList.add('sl-theme-dark');"
+    />
+
+    
+    <script type="module" crossorigin src="/code/index.df3bf71b.js"></script>
+    <link rel="stylesheet" href="/code/index.43edb258.css">
+  <link rel="manifest" href="/manifest.webmanifest"></head>
+
+  <body>
+    <!-- Our app-index web component. This component is defined in src/pages/app-index.ts-->
+    <app-index></app-index>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+      }
+    </script>
+  </body>
 </html>
