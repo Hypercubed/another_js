@@ -1,9 +1,17 @@
-node_modules/
-dist/
-dump/
-zips/
-data/*.*
-!data/ootw-demo.js
-scripts/bytekiller_unpack.so
+.DS_Store
+node_modules
+dist
+dev-dist
+build
+types
+.idea
+.github
+zips
+dump
 
-.vscode/
+scripts/bytekiller_unpack.so
+public/data/*.js
+!public/data/ootw-demo.js
+
+# Local Netlify folder
+.netlify

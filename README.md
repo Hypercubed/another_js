@@ -1,37 +1,25 @@
+
 # Another World JS
 
-This is a fork of [another_js](https://github.com/cyxx/another_js) written by [@cyxx](https://github.com/cyxx) which adds the following features:
+This is a Javascript (HTML5) port of the game <a href="https://www.mobygames.com/game/out-of-this-world">Another World</a> designed by <a href="http://www.anotherworld.fr/">Eric Chahi</a>.
 
-- sound & music support (using Audio Worklet)
-- touch controls
-- fullscreen support
-- fixes pause bug: resuming would skip time elapsed during pause
-- webpack build
-
-This is a Javascript (HTML5) port of the game <a href="https://www.mobygames.com/game/out-of-this-world">Another World</a> designed by <a href="http://www.anotherworld.fr/">Eric Chahi</a> with the following features:
-
-- switch between Amiga and EGA palettes
-- switch between the original 320x200 and 640x400 resolutions
-- rewind game play
+- JS fork of the original C++ code (by @cyxx)
+- sound & music support (using Audio Worklet) (by @warpdesign)
+- fullscreen support (by @warpdesign)
+- gamepad support
+- menu support
 
 ![Screenshot Water](screenshot-640.png)
 
 ## Demo
 
-The DOS demo version of the game can be played at [warpdesign.github.io/another_js](http://warpdesign.github.io/another_js)
-
-## Internals
-
-This port behaves the same as the original executable and interprets the game bytecode.
-
-The implementation of the 26 opcodes can be found [here](https://github.com/warpdesign/another_js/blob/master/another.js#L71).
+The DOS demo version of the game can be played at [hhttps://fluffy-treacle-90acf1.netlify.app/](https://fluffy-treacle-90acf1.netlify.app/)
 
 ## Data files
 
 As the game data files are not freely distributable, you will need to extract and convert your original files.
 
-This can be done using [extract.py](https://github.com/warpdesign/another_js/blob/master/extract_dos.py).
-The script takes datafiles as input and outputs a .js file to be included in the main .html page.
+This can be done using extract.py.
 
 For example, the DOS demo data files can be converted with these commands :
 
@@ -58,10 +46,4 @@ Zip file size: 531072 bytes, number of entries: 14
 $ gcc -shared -o bytekiller_unpack.so unpack.c
 
 $ LD_LIBRARY_PATH=$( pwd ) python extract_dos.py ootwdemo.zip > ootwdemo.js
-```
-
-With the 15th anniversary edition data file :
-
-```
-$ python extract_15th.py Pak01.pak > aw15thdemo.js
 ```
