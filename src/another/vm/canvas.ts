@@ -1,16 +1,31 @@
 import * as palette from './palette';
 
-let SCALE = 2;
-let SCREEN_W = 320 * 2;
-let SCREEN_H = 200 * 2;
+export const SCALE = 4;
+export const SCREEN_W = 320 * SCALE;
+export const SCREEN_H = 200 * SCALE;
+
 let is_1991 = false;
 
 let _canvas: HTMLCanvasElement;
 
+let image: any = null;
+
+// function readImage() {
+//   const _image = new Image();
+//   _image.onload = function() {
+//     image = _image;
+//   };
+
+//   _image.src = ""
+// }
+
+// readImage();
+
 export function update(buffer: Uint8Array, offset: number) {
-  let context = _canvas.getContext('2d')!;
-  let data = context.getImageData(0, 0, SCREEN_W, SCREEN_H);
-  let rgba = new Uint32Array(data.data.buffer);
+  const context = _canvas.getContext('2d')!;
+  const data = context.getImageData(0, 0, SCREEN_W, SCREEN_H);
+  const rgba = new Uint32Array(data.data.buffer);
+
   if (is_1991) {
     let rgba_offset = 0;
     for (let y = 0; y < SCREEN_H; y += SCALE) {
@@ -31,6 +46,10 @@ export function update(buffer: Uint8Array, offset: number) {
   } else {
     for (let i = 0; i < SCREEN_W * SCREEN_H; ++i) {
       const color = buffer[offset + i];
+      if (image && color === 16) {
+        continue;
+      }
+
       if (color < 16) {
         rgba[i] = palette.palette32[palette.palette_type * 16 + color];
       } else {
@@ -38,20 +57,14 @@ export function update(buffer: Uint8Array, offset: number) {
       }
     }
   }
+
   context.putImageData(data, 0, 0);
 }
 
 export function init(
-  canvas: HTMLCanvasElement,
-  W: number,
-  H: number,
-  S: number
+  canvas: HTMLCanvasElement
 ) {
   _canvas = canvas;
-
-  SCALE = S;
-  SCREEN_W = W;
-  SCREEN_H = H;
 }
 
 export function set_resolution(low: boolean) {

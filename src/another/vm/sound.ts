@@ -1,6 +1,8 @@
 import { DATA, load_modules, load_sounds } from '../resources';
 import { SfxPlayer } from '../sound/SfxPlayer';
 
+import * as memory from './memory';
+
 const freqTable = [
   0x0cff, 0x0dc3, 0x0e91, 0x0f6f, 0x1056, 0x114e, 0x1259, 0x136c, 0x149f,
   0x15d9, 0x1726, 0x1888, 0x19fd, 0x1b86, 0x1d21, 0x1ede, 0x20ab, 0x229c,
@@ -18,8 +20,13 @@ export async function init() {
   if (!load_sounds()) {
     console.log('error loading sounds');
     player = null;
+    return;
   }
+
   load_modules();
+  player?.setModifyVarCallback((variable: number, value: number) => {
+    memory.vmVars[variable] = value;
+  });
 }
 
 export function play_music(resNum: number, delay: number, pos: number) {

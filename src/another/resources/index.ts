@@ -13,22 +13,23 @@ interface Data {
   modules?: Resource;
 }
 
-interface Parts {
-  [key: number]: [
-    string,
-    number,
-    string,
-    number,
-    string,
-    number,
-    string | null,
-    number | null
-  ];
-}
+type PartResources = [
+  string,
+  number,
+  string,
+  number,
+  string,
+  number,
+  string | null,
+  number | null
+];
 
-let isDemo = true;
-let partsList!: Parts;
-let DATA!: Data;
+export interface RestartPoint {
+  name: string;
+  part: GAME_PART;
+  offset: number;
+  code: string;
+}
 
 export const enum GAME_PART {
   PROTECTION = 0x3e80, // Code-wheel screen
@@ -42,6 +43,11 @@ export const enum GAME_PART {
   CODE = 0x3e88, // Secret Code Entry Screen
   CODE2 = 0x3e89, // Secret Code Entry Screen
 }
+
+let isDemo = true;
+let partsList!: Partial<Record<GAME_PART, PartResources>>;
+let DATA!: Data;
+let restartPositions!: RestartPoint[];
 
 (async function load() {
   try {
@@ -155,6 +161,23 @@ export const enum GAME_PART {
       ],
     };
 
+    restartPositions = [
+      { name: 'In the Lake (LDKD)', code: 'LDKD', part: GAME_PART.WATER, offset: 0 },
+      { name: 'In The Cage (HTDC)', code: 'HTDC', part: GAME_PART.JAIL, offset: 0 },
+      { name: 'In The Sewers (CLLD)', code: 'CLLD', part: GAME_PART.CITY, offset: 0 },
+      // { name: 'First Recharger', code: '', part: GAME_PART.CITY, offset: 31 },
+      { name: 'In the Caves (XDDJ)', code: 'XDDJ', part: GAME_PART.CITY, offset: 33 },
+      // { name: 'T-Shaped Rock', code: '', part: GAME_PART.CITY, offset: 37 },
+      // { name: 'Buddy Crawl', code: '', part: GAME_PART.CITY, offset: 39 },
+      { name: 'By the water', code: '', part: GAME_PART.CITY, offset: 41 },
+      // { name: 'After the water', code: '', part: GAME_PART.CITY, offset: 49 },
+      // { name: 'Blast run (CKJL)', code: 'CKJL', part: GAME_PART.ARENA, offset: 0 },
+      { name: 'Tower Baths (LFCK)', code: 'LFCK', part: GAME_PART.BATHS, offset: 0 },
+      { name: 'Temple Entrance (TFBB)', code: 'TFBB', part: GAME_PART.BATHS, offset: 64 },
+      // { name: 'Escape', code: '', part: GAME_PART.BATHS, offset: 66 },
+      // { name: 'Final', code: '', part: GAME_PART.FINAL, offset: 0 }
+    ];
+
     DATA = {
       bitmaps: RES.bitmaps as unknown as Resource,
       sounds: RES.sounds as unknown as Resource,
@@ -188,6 +211,11 @@ export const enum GAME_PART {
         RES.size11,
       ],
     };
+
+    restartPositions = [
+      { name: 'Introduction', code: '', part: GAME_PART.INTRODUCTION, offset: 0 },
+      { name: 'Water', code: '', part: GAME_PART.WATER, offset: 0 }
+    ];
 
     DATA = {
       bitmaps: RES.bitmaps as unknown as Resource,
@@ -241,4 +269,4 @@ export function load(data: string | null, size: number | null) {
   return buf;
 }
 
-export { isDemo, partsList, DATA };
+export { isDemo, partsList, restartPositions, DATA };

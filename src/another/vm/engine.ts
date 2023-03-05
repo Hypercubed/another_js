@@ -3,9 +3,11 @@ import Stats from 'stats.js';
 import * as sound from './sound';
 import * as vm from './vm';
 import * as controls from './controls';
+import * as screen from './canvas';
 
 import type { State } from './vm';
 import { GAME_PART, isDemo } from '../resources';
+import { toggle_resolution } from './canvas';
 
 let stats: Stats;
 
@@ -44,13 +46,17 @@ function tick() {
   processSpecialInputs();
 }
 
-export function start() {
+export async function start(canvas: HTMLCanvasElement) {
   stats = new Stats();
   stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.body.appendChild(stats.dom);
 
   rewind_timestamp = Date.now();
   rewind_buffer.length = 0;
+
+  screen.init(canvas);
+  await sound.init();
+  vm.init();
 
   tick();
 
@@ -137,11 +143,13 @@ function processSpecialInputs() {
   const inputUp = inputs.map((v, i) => !v && prevInputs[i]);
   prevInputs = inputs;
 
+  // TODO: if demo and in part 16002, move to part 16003 on action
+
   if (inputUp[controls.KEY_CODE.PAUSE]) {
     pause();
   }
 
-  if (inputUp[controls.KEY_CODE.CODE_SCREEN]) {
+  if (inputUp[controls.KEY_CODE.CODE_SCREEN] && !isDemo) {
     code();
   }
 
@@ -167,5 +175,9 @@ function processSpecialInputs() {
 
   if (inputUp[controls.KEY_CODE.PREV_PART]) {
     prev_part();
+  }
+
+  if (inputUp[controls.KEY_CODE.RESOLUTION]) {
+    toggle_resolution();
   }
 }

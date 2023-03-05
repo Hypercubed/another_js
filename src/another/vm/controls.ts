@@ -111,38 +111,24 @@ export function update_input() {
   if (is_key_pressed(KEY_CODE.RIGHT)) {
     memory.vmVars[VAR.HERO_POS_LEFT_RIGHT] = 1;
     mask |= 1;
-  }
-
-  if (is_key_pressed(KEY_CODE.LEFT)) {
+  } else if (is_key_pressed(KEY_CODE.LEFT)) {
     memory.vmVars[VAR.HERO_POS_LEFT_RIGHT] = -1;
     mask |= 2;
   }
 
-  if (isDemo) {
-    if ( is_key_pressed( KEY_CODE.DOWN ) ) {
-      memory.vmVars[ VAR.HERO_POS_JUMP_DOWN ] = 1;
-      memory.vmVars[ VAR.HERO_POS_UP_DOWN ] = 1;
-      mask |= 4;
-    }
-
-    if ( is_key_pressed(KEY_CODE.UP ) ) {
-      memory.vmVars[ VAR.HERO_POS_JUMP_DOWN ] = -1;
-      memory.vmVars[ VAR.HERO_POS_UP_DOWN ] = -1;
-      mask |= 8;
-    }
-  } else {
-    if (is_key_pressed(KEY_CODE.DOWN)) {
-      memory.vmVars[VAR.HERO_POS_UP_DOWN] = 1;
-      mask |= 4;
-    }
-    if (is_key_pressed(KEY_CODE.UP)) {
-      memory.vmVars[VAR.HERO_POS_UP_DOWN] = -1;
-      mask |= 8;
-    }
+  if ( is_key_pressed( KEY_CODE.DOWN ) ) {
+    memory.vmVars[ VAR.HERO_POS_JUMP_DOWN ] = 1;
+    memory.vmVars[ VAR.HERO_POS_UP_DOWN ] = 1;
+    mask |= 4;
+  } else if ( is_key_pressed(KEY_CODE.UP ) ) {
+    memory.vmVars[ VAR.HERO_POS_JUMP_DOWN ] = -1;
+    memory.vmVars[ VAR.HERO_POS_UP_DOWN ] = -1;
+    mask |= 8;
   }
 
   if (is_key_pressed(KEY_CODE.JUMP)) {
     memory.vmVars[VAR.HERO_POS_JUMP_DOWN] = -1;
+    memory.vmVars[ VAR.HERO_POS_UP_DOWN ] = 0;
     mask |= 8;
   }
 

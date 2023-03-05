@@ -18,7 +18,7 @@ export class AppHelp extends LitElement {
         </tr>
         <tr>
           <th>Move / Swim</th>
-          <td>Arrow Keys</td>
+          <td><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></td>
           <td>L-pad</td>
         </tr>
         <tr>
@@ -31,6 +31,7 @@ export class AppHelp extends LitElement {
           <td><kbd>Shift</kbd></td>
           <td><kbd class="gamepad">B</kbd></td>
         </tr>
+      </table>
     </div>
     `;
   }

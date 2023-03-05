@@ -26,7 +26,14 @@ export const ROUTES = [
         path: 'credits',
         component: 'app-credits',
         action: async () => {
-          await import('./pages/app-credits');
+          await import('./pages/app-credits.js');
+        }
+      },
+      {
+        path: 'load',
+        component: 'app-load',
+        action: async () => {
+          await import('./pages/app-load');
         }
       }
     ],

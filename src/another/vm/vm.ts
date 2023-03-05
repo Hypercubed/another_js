@@ -34,9 +34,9 @@ const DEBUG = false;
 
 let strings_language = STRINGS_LANGUAGE.EN;
 
-const SCALE = 3;
-const SCREEN_W = 320 * SCALE;
-const SCREEN_H = 200 * SCALE;
+const SCALE = screen.SCALE;
+const SCREEN_W = screen.SCREEN_W;
+const SCREEN_H = screen.SCREEN_H;
 const PAGE_SIZE = SCREEN_W * SCREEN_H;
 
 const FPS = 50;
@@ -178,7 +178,7 @@ export function run_tasks() {
   }
 }
 
-function restart(part: number, pos: number = 0) {
+function restart(part: GAME_PART, pos: number = 0) {
   const ResPart = partsList[part];
   if (!ResPart) {
     throw 'Part not found: ' + part;
@@ -303,7 +303,7 @@ function draw_line(
   }
   const offset = page * PAGE_SIZE + y * SCREEN_W;
   if (color == 0x11) {
-    console.assert(page != 0);
+    // console.assert(page != 0);
     buffer8.set(
       buffer8.subarray(y * SCREEN_W + x1, y * SCREEN_W + x2 + 1),
       offset + x1
@@ -836,71 +836,11 @@ export function change_part(num: number, pos = 0) {
   next_part = 0;
 }
 
-// const restartPos: any = [
-// 	[16008,  0],
-//   [16001,  0],
-//   [16002, 10],
-//   [16002, 12],
-//   [16002, 14],
-// 	[16003, 20],
-//   [16003, 24],
-//   [16003, 26],
-//   [16004, 30],
-//   [16004, 31],
-// 	[16004, 32],
-//   [16004, 33],
-//   [16004, 34],
-//   [16004, 35],
-//   [16004, 36],
-// 	[16004, 37],
-//   [16004, 38],
-//   [16004, 39],
-//   [16004, 40],
-//   [16004, 41],
-// 	[16004, 42],
-//   [16004, 43],
-//   [16004, 44],
-//   [16004, 45],
-//   [16004, 46],
-// 	[16004, 47],
-//   [16004, 48],
-//   [16004, 49],
-//   [16006, 64],
-//   [16006, 65],
-// 	[16006, 66],
-//   [16006, 67],
-//   [16006, 68],
-//   [16005, 50],
-//   [16006, 60],
-// 	[16007, 0]
-// ];
-
-// export function next() {
-//   const part = current_part + 1;
-//   if (part in partsList) {
-//     change_part(part);
-//   }
-// }
-
-// export function prev() {
-//   const part = current_part - 1;
-//   if (part in partsList) {
-//     change_part(part);
-//   }
-// }
-
 export function set_language(num: number) {
   strings_language = num;
 }
 
-export async function init(canvas: HTMLCanvasElement) {
-  screen.init(canvas, SCREEN_W, SCREEN_H, SCALE);
-  await sound.init();
-
-  sound.player?.setModifyVarCallback((variable: number, value: number) => {
-    memory.vmVars[variable] = value;
-  });
-
+export function init() {
   controls.bind_events();
   reset();
 }
