@@ -171,7 +171,7 @@ let restartPositions!: RestartPoint[];
       // { name: 'Buddy Crawl', code: '', part: GAME_PART.CITY, offset: 39 },
       { name: 'By the water', code: '', part: GAME_PART.CITY, offset: 41 },
       // { name: 'After the water', code: '', part: GAME_PART.CITY, offset: 49 },
-      // { name: 'Blast run (CKJL)', code: 'CKJL', part: GAME_PART.ARENA, offset: 0 },
+      { name: 'Blast run (CKJL)', code: 'CKJL', part: GAME_PART.ARENA, offset: 0 },
       { name: 'Tower Baths (LFCK)', code: 'LFCK', part: GAME_PART.BATHS, offset: 0 },
       { name: 'Temple Entrance (TFBB)', code: 'TFBB', part: GAME_PART.BATHS, offset: 64 },
       // { name: 'Escape', code: '', part: GAME_PART.BATHS, offset: 66 },

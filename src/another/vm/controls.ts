@@ -1,4 +1,3 @@
-import { isDemo } from '../resources';
 import * as memory from './memory';
 
 import { VAR } from './memory';

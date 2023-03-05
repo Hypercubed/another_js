@@ -4,6 +4,8 @@ import { customElement } from 'lit/decorators.js';
 // @ts-ignore
 import { default as gameControl } from 'gamecontroller.js/src/gamecontrol.js';
 
+import './another/resources';
+
 import {router, ROUTES } from './app-router';
 
 import './pages/app-menu';

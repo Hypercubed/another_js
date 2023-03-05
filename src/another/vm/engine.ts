@@ -3,11 +3,10 @@ import Stats from 'stats.js';
 import * as sound from './sound';
 import * as vm from './vm';
 import * as controls from './controls';
-import * as screen from './canvas';
+import * as canvas from './canvas';
 
 import type { State } from './vm';
 import { GAME_PART, isDemo } from '../resources';
-import { toggle_resolution } from './canvas';
 
 let stats: Stats;
 
@@ -46,7 +45,7 @@ function tick() {
   processSpecialInputs();
 }
 
-export async function start(canvas: HTMLCanvasElement) {
+export async function start(canvasElm: HTMLCanvasElement) {
   stats = new Stats();
   stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.body.appendChild(stats.dom);
@@ -54,7 +53,7 @@ export async function start(canvas: HTMLCanvasElement) {
   rewind_timestamp = Date.now();
   rewind_buffer.length = 0;
 
-  screen.init(canvas);
+  canvas.init(canvasElm);
   await sound.init();
   vm.init();
 
@@ -178,6 +177,6 @@ function processSpecialInputs() {
   }
 
   if (inputUp[controls.KEY_CODE.RESOLUTION]) {
-    toggle_resolution();
+    canvas.toggle_resolution();
   }
 }

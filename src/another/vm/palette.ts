@@ -15,6 +15,11 @@ export let palette_bmp = new Uint32Array(256 * 3); // 15th edition backgrounds
 export let palette32 = new Uint32Array(16 * 3); // Amiga, EGA, VGA
 export let palette: Uint8Array;
 export let palette_type = PALETTE_TYPE.AMIGA;
+export let next_palette = -1;
+
+export function set_next_palette(num: number) {
+  next_palette = num;
+}
 
 export function set_palette_type(num: number) {
   palette_type = num;

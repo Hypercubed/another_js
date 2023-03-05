@@ -4,9 +4,9 @@ import { Router } from '@vaadin/router';
 
 import {
   engine,
-  screen,
   vm,
 } from '../another/vm';
+import { SCREEN_H, SCREEN_W } from '../another/vm/constants';
 
 @customElement('app-game')
 export class AppGame extends LitElement {
@@ -26,7 +26,7 @@ export class AppGame extends LitElement {
   render() {
     return html`
       <div id="app-index__canvas-container">
-        <canvas id="screen" width="${screen.SCREEN_W}" height="${screen.SCREEN_H}"></canvas>
+        <canvas id="screen" width="${SCREEN_W}" height="${SCREEN_H}"></canvas>
       </div>
     `;
   }

@@ -1,8 +1,5 @@
+import { SCALE, SCREEN_H, SCREEN_W } from './constants';
 import * as palette from './palette';
-
-export const SCALE = 4;
-export const SCREEN_W = 320 * SCALE;
-export const SCREEN_H = 200 * SCALE;
 
 let is_1991 = false;
 

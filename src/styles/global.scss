@@ -50,12 +50,14 @@ main {
 
 #app-index__menu-container,
 #app-index__canvas-container,
-#app-index__help-container {
+#app-index__help-container,
+#app-index__credits-container {
   @include viewport-ratio(16, 10);
 }
 
 #app-index__menu-container,
-#app-index__help-container {
+#app-index__help-container,
+#app-index__credits-container {
   background-image: url('/assets/AnotherWorld_image1600w.jpg');
   background-size: cover;
 }
@@ -80,6 +82,11 @@ main {
       font-size: min(2vh, 2vw);
     }
 
+    a {
+      padding: 0.2em 0.4em;
+      cursor: pointer;
+    }
+
     li a {
       text-align: center;
       display: inline-block;
@@ -88,8 +95,6 @@ main {
       border-top-left-radius: 0;
       border-bottom-right-radius: 0;
       color: white;
-      cursor: pointer;
-      padding: 0.2em 0.4em;
       margin: 0.2em;
       background-color: rgba(0, 0, 0, 0.7);
       box-shadow: 0.1em 0.1em 0 0 rgba(0, 0, 0, 0.4);
@@ -98,6 +103,22 @@ main {
         outline: 3px solid white;
         box-shadow: 0 0 0.2em 0 rgba(0, 0, 0, 0.8);
       }
+    }
+  }
+
+  .app-index__credits {
+    left: 40%;
+    text-shadow: 2px 2px 2px #474747;
+    font-size: min(2.5vh, 2.5vw);
+    font-style: italic;
+
+    tr th:first-child {
+      text-align: right;
+    }
+
+    tr td:nth-child(2) {
+      text-align: right;
+      padding: 0 0.5em;
     }
   }
 }
@@ -109,19 +130,20 @@ main {
   }
 }
 
-#app-index__help-container {
+#app-index__help-container, #app-index__credits-container {
   color: black;
   font-size: min(3vh, 2vw);
   font-weight: bold;
   line-height: 1.5;
   text-align: left;
 
-  .app-index__help {
+  .app-index__help, .app-index__credits {
     position: relative;
     top: 45%;
     left: 45%;
     margin: 0;
     padding: 0;
+    text-shadow: 2px 2px 2px #5f5f5f;
 
     a {
       outline-offset: 0.4em;
@@ -143,6 +165,21 @@ main {
       font-size: 1.5em;
       font-weight: bold;
       font-style: italic;
+    }
+  }
+
+  .app-index__credits {
+    left: 35%;
+    font-size: min(2vh, 2vw);
+    font-style: italic;
+
+    tr th:first-child {
+      text-align: right;
+    }
+
+    tr td:nth-child(2) {
+      text-align: right;
+      padding: 0 0.5em;
     }
   }
 }
