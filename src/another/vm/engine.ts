@@ -6,9 +6,12 @@ import * as controls from './controls';
 import * as canvas from './canvas';
 
 import type { State } from './vm';
-import { GAME_PART, isDemo } from '../resources';
+import { GAME_PART, isDemo, init } from '../resources';
+import { cheatChanged } from './events';
+
 
 let stats: Stats;
+export let cheats_enabled = false;
 
 let timer: number | null = null;
 
@@ -53,9 +56,11 @@ export async function start(canvasElm: HTMLCanvasElement) {
   rewind_timestamp = Date.now();
   rewind_buffer.length = 0;
 
+  await init();
+
   canvas.init(canvasElm);
   await sound.init();
-  vm.init();
+  vm.reset();
 
   tick();
 
@@ -133,6 +138,12 @@ function prev_part() {
   vm.change_part(part, 0);
 };
 
+export function set_cheats(value: boolean) {
+  if (value) console.log('Cheats enabled!');
+  cheats_enabled = value;
+  cheatChanged.dispatch(cheats_enabled);
+}
+
 let prevInputs: boolean[] = new Array(16).fill(false);
 
 function processSpecialInputs() {
@@ -152,11 +163,11 @@ function processSpecialInputs() {
     code();
   }
 
-  if (inputUp[controls.KEY_CODE.SAVE]) {
+  if (inputUp[controls.KEY_CODE.SAVE] && cheats_enabled) {
     save();
   }
 
-  if (inputUp[controls.KEY_CODE.LOAD]) {
+  if (inputUp[controls.KEY_CODE.LOAD] && cheats_enabled) {
     load();
   }
 
@@ -164,15 +175,15 @@ function processSpecialInputs() {
     reset();
   }
 
-  if (inputUp[controls.KEY_CODE.REWIND]) {
+  if (inputUp[controls.KEY_CODE.REWIND] && cheats_enabled) {
     rewind();
   }
 
-  if (inputUp[controls.KEY_CODE.NEXT_PART]) {
+  if (inputUp[controls.KEY_CODE.NEXT_PART] && cheats_enabled) {
     next_part();
   }
 
-  if (inputUp[controls.KEY_CODE.PREV_PART]) {
+  if (inputUp[controls.KEY_CODE.PREV_PART] && cheats_enabled) {
     prev_part();
   }
 

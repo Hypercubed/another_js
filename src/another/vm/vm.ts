@@ -491,8 +491,3 @@ export function change_part(num: number, pos = 0) {
   current_part = next_part;
   next_part = 0;
 }
-
-export function init() {
-  controls.bind_events();
-  reset();
-}

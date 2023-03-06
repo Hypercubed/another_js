@@ -5,19 +5,7 @@ let is_1991 = false;
 
 let _canvas: HTMLCanvasElement;
 
-let image: any = null;
-
-// function readImage() {
-//   const _image = new Image();
-//   _image.onload = function() {
-//     image = _image;
-//   };
-
-//   _image.src = ""
-// }
-
-// readImage();
-
+// TODO: move outside another
 export function update(buffer: Uint8Array, offset: number) {
   const context = _canvas.getContext('2d')!;
   const data = context.getImageData(0, 0, SCREEN_W, SCREEN_H);
@@ -43,10 +31,6 @@ export function update(buffer: Uint8Array, offset: number) {
   } else {
     for (let i = 0; i < SCREEN_W * SCREEN_H; ++i) {
       const color = buffer[offset + i];
-      if (image && color === 16) {
-        continue;
-      }
-
       if (color < 16) {
         rgba[i] = palette.palette32[palette.palette_type * 16 + color];
       } else {

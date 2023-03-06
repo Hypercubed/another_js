@@ -20,6 +20,8 @@
     "fflate": "^0.7.4",
     "gamecontroller.js": "^1.5.0",
     "lit": "^2.3.1",
+    "mini-signals": "^1.2.0",
+    "nipplejs": "^0.10.0",
     "stats.js": "^0.17.0",
     "workbox-build": "^6.5.2",
     "workbox-core": "^6.5.2",

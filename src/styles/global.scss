@@ -169,9 +169,8 @@ main {
   }
 
   .app-index__credits {
-    left: 35%;
-    font-size: min(2vh, 2vw);
-    font-style: italic;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: min(2vh, 1.5vw);
 
     tr th:first-child {
       text-align: right;
@@ -200,6 +199,50 @@ kbd.gamepad {
   padding: 0;
   border: 1px solid #000;
   text-align: center;
+}
+
+.touch_zone {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+
+  &.touch_zone--bottom-left {
+    left: 0;
+    bottom: 0;
+  }
+
+  &.touch_zone--bottom-right {
+    right: 0;
+    bottom: 0;
+  }
+
+  &.touch_zone--top-left {
+    left: 0;
+    top: 0;
+  }
+
+  &.touch_zone--bottom-left {
+    right: 0;
+    bottom: 0;
+  }
+}
+
+#app-index__left-zone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  outline: 2px solid red;
+}
+
+#app-index__right-zone {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  outline: 2px solid red;
 }
 
 @media (prefers-color-scheme: dark) {

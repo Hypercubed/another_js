@@ -31,6 +31,8 @@ export function buttonPressed(b: any) {
   return b === 1.0;
 }
 
+
+// TODO: move outside another
 export function pollGamepads() {
   const gamepads = navigator.getGamepads();
   if (!gamepads) {
@@ -68,35 +70,12 @@ export function is_key_pressed(code: number) {
   return keyboardState[code] || gamepadState[code];
 }
 
-const controls = {
-  ' ': KEY_CODE.ACTION,
-  'Enter': KEY_CODE.ACTION,
-  'Shift': KEY_CODE.JUMP,
-  'ArrowUp': KEY_CODE.UP,
-  'ArrowDown': KEY_CODE.DOWN,
-  'ArrowLeft': KEY_CODE.LEFT,
-  'ArrowRight': KEY_CODE.RIGHT,
-  'f': KEY_CODE.FF,
-  'r': KEY_CODE.RESET,
-  'p': KEY_CODE.PAUSE,
-  'c': KEY_CODE.CODE_SCREEN
-};
-
-function set_key_pressed(e: KeyboardEvent, state: boolean) {
-  if (e.key in controls) {
-    e.preventDefault();
-    const code: KEY_CODE = controls[e.key as keyof typeof controls];
-    keyboardState[code] = state;
-  }
+export function set_button_pressed(code: KEY_CODE, state: boolean) {
+  gamepadState[code] = state;
 }
 
-export function bind_events() {
-  document.onkeydown = function (e) {
-    set_key_pressed(e, true);
-  };
-  document.onkeyup = function (e) {
-    set_key_pressed(e, false);
-  };
+export function set_key_pressed(code: KEY_CODE, state: boolean) {
+  keyboardState[code] = state;
 }
 
 export function update_input() {

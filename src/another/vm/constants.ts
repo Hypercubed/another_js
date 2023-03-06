@@ -1,5 +1,6 @@
 export const BYPASS_PROTECTION = true;
 export const DEBUG = false;
+export const CHEAT_CODE = 'UUDDLRLR';
 
 export const SCALE = 4;
 export const SCREEN_W = 320 * SCALE;

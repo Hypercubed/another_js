@@ -3,6 +3,7 @@ import { PAGE_SIZE, SCALE, SCREEN_H, SCREEN_W } from './constants';
 
 import * as canvas from './canvas';
 import * as palette from './palette';
+import { codeSeen } from './events';
 
 export const buffer8 = new Uint8Array(4 * PAGE_SIZE);
 
@@ -293,11 +294,15 @@ export function draw_string(num: number, color: number, x: number, y: number) {
   }
   if (num in strings) {
     const str = strings[num];
+    if (num >= 0x15e && num <= 0x174) {
+      codeSeen.dispatch(str);
+    }
     draw_text(str, color, x, y);
   }
 }
 
 export function draw_text(str: string, color: number, x: number, y: number) {
+
   const x0 = x;
   for (let i = 0; i < str.length; ++i) {
     const chr = str.charCodeAt(i);

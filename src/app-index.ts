@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js';
 // @ts-ignore
 import { default as gameControl } from 'gamecontroller.js/src/gamecontrol.js';
 
-import './another/resources';
+import { init } from './another/resources';
 
 import {router, ROUTES } from './app-router';
 
@@ -13,10 +13,15 @@ import './pages/app-game';
 import './pages/app-help';
 import './styles/global.scss';
 import { Router } from '@vaadin/router';
+import { engine } from './another/vm';
+import { CHEAT_CODE } from './another/vm/constants';
+
+init();
 
 @customElement('app-index')
 export class AppIndex extends LitElement {
   private audioElm!: HTMLAudioElement;
+  private keyCodeHistory: string[] = [];
 
   get inGame() {
     return router.location.pathname === '/game';
@@ -31,12 +36,34 @@ export class AppIndex extends LitElement {
     document.addEventListener('keyup', this.onKeypress as any);
 
     gameControl.on('connect', (gamepad: any) => {
-      gamepad.after('up', () => this.focusPrevious());
-      gamepad.after('down', () => this.focusNext());
-      gamepad.after('button0', () => this.onEnter());
-
+      gamepad.after('up', () => {
+        if (this.inGame) return;
+        this.addCodeKey('U');
+        this.focusPrevious();
+      });
+      gamepad.after('down', () => {
+        if (this.inGame) return;
+        this.addCodeKey('D');
+        this.focusNext();
+      });
+      gamepad.after('left', () => {
+        if (this.inGame) return;
+        this.addCodeKey('L');
+        this.focusPrevious();
+      });
+      gamepad.after('right', () => {
+        if (this.inGame) return;
+        this.addCodeKey('R');
+        this.focusNext();
+      });
+      gamepad.after('button0', () => {
+        if (this.inGame) return;
+        this.addCodeKey('A');
+        this.onEnter();
+      });
       gamepad.after('button1', () => {
         if (this.inGame) return;
+        this.addCodeKey('B');
         this.onEscape();
       });
 
@@ -120,12 +147,27 @@ export class AppIndex extends LitElement {
     switch (e.key) {
       case 'Enter':
       case ' ':
+        if (this.inGame) return;
         this.onEnter();
         break;
       case 'ArrowUp':
+        if (this.inGame) return;
+        this.addCodeKey('U');
         this.focusPrevious();
         break;
       case 'ArrowDown':
+        if (this.inGame) return;
+        this.addCodeKey('D');
+        this.focusNext();
+        break;
+      case 'ArrowLeft':
+        if (this.inGame) return;
+        this.addCodeKey('L');
+        this.focusPrevious();
+        break;
+      case 'ArrowRight':
+        if (this.inGame) return;
+        this.addCodeKey('R');
         this.focusNext();
         break;
       case 'Escape':
@@ -159,6 +201,16 @@ export class AppIndex extends LitElement {
     return this.focusableItems.findIndex(
       (item) => item === document.activeElement
     );
+  }
+
+  private addCodeKey(key: string) {
+    this.keyCodeHistory.push(key);
+    this.keyCodeHistory = this.keyCodeHistory.slice(-CHEAT_CODE.length);
+    const str = this.keyCodeHistory.join('');
+    if (str === CHEAT_CODE) {
+      engine.set_cheats(true);
+      this.requestUpdate();
+    }
   }
 }
 

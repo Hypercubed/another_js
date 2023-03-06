@@ -22,12 +22,12 @@ export class AppCredits extends LitElement {
           <td><a href="https://github.com/cyxx/another_js">@cyxx</a></td>
         </tr>
         <tr>
-          <th>Sound & music</th>
+          <th>Sound & music support</th>
           <td>。。。。</td>
           <td><a href="https://github.com/warpdesign/another_js">@warpdesign</a></td>
         </tr>
         <tr>
-          <th>PWA, menu & gamepad</th>
+          <th>PWA, menu & gamepad support</th>
           <td>。。。。</td>
           <td><a href="https://github.com/hypercubed/another_js">@hypercubed</a></td>
         </tr>
