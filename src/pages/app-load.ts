@@ -47,7 +47,8 @@ export class AppLoad extends LitElement {
   }
 
   renderItem(r: RestartPoint) {
-    const part = '?code=' + r.code;
-    return html`<li><a data-route="game${part}" href="${router.urlForPath('/game') + part}" tabindex="0" role="button">${r.name} (${r.code})</a></li>`
+    const part = r.code ? '?code=' + r.code : '';
+    const label = r.code ? `${r.name} (${r.code})` : r.name;
+    return html`<li><a data-route="game${part}" href="${router.urlForPath('/game') + part}" tabindex="0" role="button">${label}</a></li>`
   }
 }

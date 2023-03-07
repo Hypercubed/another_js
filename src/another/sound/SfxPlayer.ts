@@ -58,8 +58,10 @@ export class SfxPlayer {
       // console.log('SfxPlayer::initAudio')
       this._rate = this._audioContext.sampleRate;
 
+      const processor = await import('./processors.js?url');
+
       // console.log('Adding module processors')
-      await this._audioContext.audioWorklet.addModule('assets/processors.js');
+      await this._audioContext.audioWorklet.addModule(processor.default);
 
       // console.log('Creating worklet raw')
       this._sfxRawWorklet = new AudioWorkletNode(

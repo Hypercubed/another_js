@@ -49,12 +49,12 @@ export class AppIndex extends LitElement {
       gamepad.after('left', () => {
         if (this.inGame) return;
         this.addCodeKey('L');
-        this.focusPrevious();
+        // this.focusPrevious();
       });
       gamepad.after('right', () => {
         if (this.inGame) return;
         this.addCodeKey('R');
-        this.focusNext();
+        // this.focusNext();
       });
       gamepad.after('button0', () => {
         if (this.inGame) return;

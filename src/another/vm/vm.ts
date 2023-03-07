@@ -117,6 +117,8 @@ function execute_task() {
       // console.assert(opcode <= 0x1a);
       if (!vm[opcode as OP_CODE]) {
         console.log(`opcode ${opcode} not implemented`);
+        bytecode_offset = -1;
+        task_paused = true;
       } else {
         vm[opcode as OP_CODE]();
       }

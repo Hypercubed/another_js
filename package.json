@@ -8,7 +8,7 @@
     "start": "vite --open --port 4200",
     "start-remote": "vite --open --port 4200 --host",
     "fix": "prettier --write .",
-    "build-demo": "tsc && vite build && rm dist/data/ootw.js"
+    "build-demo": "tsc && vite build && rm dist/code/ootw.*.*"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +22,7 @@
     "lit": "^2.3.1",
     "mini-signals": "^1.2.0",
     "nipplejs": "^0.10.0",
+    "sass": "^1.58.3",
     "stats.js": "^0.17.0",
     "workbox-build": "^6.5.2",
     "workbox-core": "^6.5.2",

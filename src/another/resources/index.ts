@@ -54,7 +54,7 @@ export async function init() {
 
   try {
     /* @ts-ignore */
-    const RES = await import(/* @vite-ignore */ `/data/${FULL}.js`);
+    const RES = await import(`../data/${FULL}.js`);
 
     console.log(`loaded full game: ${FULL}`);
 
@@ -187,7 +187,7 @@ export async function init() {
     };
   } catch (e) {
     /* @ts-ignore */
-    const RES = await import(/* @vite-ignore */ `/data/${DEMO}.js`);
+    const RES = await import(`../data/${DEMO}.js`);
 
     console.log(`loaded demo game: ${DEMO}`);
 
@@ -216,7 +216,7 @@ export async function init() {
 
     restartPositions = [
       { name: 'Introduction', code: '', part: GAME_PART.INTRODUCTION, offset: 0 },
-      { name: 'Water', code: '', part: GAME_PART.WATER, offset: 0 }
+      { name: 'Water', code: 'LDKD', part: GAME_PART.WATER, offset: 0 }
     ];
 
     DATA = {

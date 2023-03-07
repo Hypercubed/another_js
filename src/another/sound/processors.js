@@ -1,3 +1,6 @@
+// @ts-nocheck
+
+// @ts-ignore
 const CreateRawChannel = () => {
   return {
     pos: 0,
@@ -8,6 +11,7 @@ const CreateRawChannel = () => {
   };
 };
 
+// @ts-ignore
 class SfxRawProcessor extends AudioWorkletProcessor {
   _ready = false;
   _playing = false;
@@ -183,6 +187,7 @@ const F32Max = (input) => {
   return input;
 };
 
+// @ts-ignore
 class SfxPlayerProcessor extends AudioWorkletProcessor {
   _ready = false;
   _delay = 0;

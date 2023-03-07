@@ -10,8 +10,6 @@ zips
 dump
 
 scripts/bytekiller_unpack.so
-public/data/*.js
-!public/data/ootw-demo.js
 
 # Local Netlify folder
 .netlify
