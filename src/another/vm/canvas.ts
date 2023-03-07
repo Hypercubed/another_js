@@ -42,9 +42,7 @@ export function update(buffer: Uint8Array, offset: number) {
   context.putImageData(data, 0, 0);
 }
 
-export function init(
-  canvas: HTMLCanvasElement
-) {
+export function init(canvas: HTMLCanvasElement) {
   _canvas = canvas;
 }
 

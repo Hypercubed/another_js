@@ -18,60 +18,14 @@ export enum KEY_CODE {
   SAVE,
   LOAD,
   NEXT_PART,
-  PREV_PART
+  PREV_PART,
+  EXIT,
 }
 
-const gamepadState: boolean[] = new Array(16).fill(false);
 const keyboardState: boolean[] = new Array(16).fill(false);
 
-export function buttonPressed(b: any) {
-  if (typeof b === 'object') {
-    return b.pressed;
-  }
-  return b === 1.0;
-}
-
-
-// TODO: move outside another
-export function pollGamepads() {
-  const gamepads = navigator.getGamepads();
-  if (!gamepads) {
-    return;
-  }
-
-  const gamepad = gamepads[0];
-
-  if (gamepad) {
-    gamepadState[KEY_CODE.UP] = gamepad.axes[1] < -0.5;
-    gamepadState[KEY_CODE.DOWN] = gamepad.axes[1] > 0.5;
-    gamepadState[KEY_CODE.LEFT] = gamepad.axes[0] < -0.5;
-    gamepadState[KEY_CODE.RIGHT] = gamepad.axes[0] > 0.5;
-
-    gamepadState[KEY_CODE.JUMP] = buttonPressed(gamepad.buttons[1]);
-    gamepadState[KEY_CODE.ACTION] = buttonPressed(gamepad.buttons[0]);
-
-    gamepadState[KEY_CODE.FF] =
-      buttonPressed(gamepad.buttons[5]) || buttonPressed(gamepad.buttons[7]);
-
-    gamepadState[KEY_CODE.REWIND] = buttonPressed(gamepad.buttons[4]);
-    gamepadState[KEY_CODE.PAUSE] = buttonPressed(gamepad.buttons[9]);
-    gamepadState[KEY_CODE.CODE_SCREEN] = buttonPressed(gamepad.buttons[8]);
-    gamepadState[KEY_CODE.RESOLUTION] = buttonPressed(gamepad.buttons[3]);
-
-    gamepadState[KEY_CODE.LOAD] = buttonPressed(gamepad.buttons[6]);
-    gamepadState[KEY_CODE.SAVE] = buttonPressed(gamepad.buttons[7]);
-
-    gamepadState[KEY_CODE.NEXT_PART] = buttonPressed(gamepad.buttons[12]);
-    gamepadState[KEY_CODE.PREV_PART] = buttonPressed(gamepad.buttons[13]);
-  }
-}
-
 export function is_key_pressed(code: number) {
-  return keyboardState[code] || gamepadState[code];
-}
-
-export function set_button_pressed(code: KEY_CODE, state: boolean) {
-  gamepadState[code] = state;
+  return keyboardState[code];
 }
 
 export function set_key_pressed(code: KEY_CODE, state: boolean) {
@@ -94,19 +48,19 @@ export function update_input() {
     mask |= 2;
   }
 
-  if ( is_key_pressed( KEY_CODE.DOWN ) ) {
-    memory.vmVars[ VAR.HERO_POS_JUMP_DOWN ] = 1;
-    memory.vmVars[ VAR.HERO_POS_UP_DOWN ] = 1;
+  if (is_key_pressed(KEY_CODE.DOWN)) {
+    memory.vmVars[VAR.HERO_POS_JUMP_DOWN] = 1;
+    memory.vmVars[VAR.HERO_POS_UP_DOWN] = 1;
     mask |= 4;
-  } else if ( is_key_pressed(KEY_CODE.UP ) ) {
-    memory.vmVars[ VAR.HERO_POS_JUMP_DOWN ] = -1;
-    memory.vmVars[ VAR.HERO_POS_UP_DOWN ] = -1;
+  } else if (is_key_pressed(KEY_CODE.UP)) {
+    memory.vmVars[VAR.HERO_POS_JUMP_DOWN] = -1;
+    memory.vmVars[VAR.HERO_POS_UP_DOWN] = -1;
     mask |= 8;
   }
 
   if (is_key_pressed(KEY_CODE.JUMP)) {
     memory.vmVars[VAR.HERO_POS_JUMP_DOWN] = -1;
-    memory.vmVars[ VAR.HERO_POS_UP_DOWN ] = 0;
+    memory.vmVars[VAR.HERO_POS_UP_DOWN] = 0;
     mask |= 8;
   }
 
@@ -121,7 +75,5 @@ export function update_input() {
 }
 
 export function getInputs() {
-  return keyboardState.map((v, i) => {
-    return v || gamepadState[i];
-  });
+  return keyboardState.slice();
 }

@@ -1,4 +1,11 @@
-import { DATA, font, load, strings_en, strings_fr, STRINGS_LANGUAGE } from '../resources';
+import {
+  DATA,
+  font,
+  load,
+  strings_en,
+  strings_fr,
+  STRINGS_LANGUAGE,
+} from '../resources';
 import { PAGE_SIZE, SCALE, SCREEN_H, SCREEN_W } from './constants';
 
 import * as canvas from './canvas';
@@ -89,7 +96,6 @@ export function copy_page(src: number, dst: number, vscroll: number) {
     }
   }
 }
-
 
 function draw_point(page: number, color: number, x: number, y: number) {
   if (x < 0 || x >= SCREEN_W || y < 0 || y >= SCREEN_H) {
@@ -302,7 +308,6 @@ export function draw_string(num: number, color: number, x: number, y: number) {
 }
 
 export function draw_text(str: string, color: number, x: number, y: number) {
-
   const x0 = x;
   for (let i = 0; i < str.length; ++i) {
     const chr = str.charCodeAt(i);

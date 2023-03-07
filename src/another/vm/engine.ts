@@ -9,7 +9,6 @@ import type { State } from './vm';
 import { GAME_PART, isDemo, init } from '../resources';
 import { cheatChanged } from './events';
 
-
 let stats: Stats;
 export let cheats_enabled = false;
 
@@ -130,13 +129,16 @@ function next_part() {
   let { part } = vm.get_state();
   part = Math.min(part + 1, isDemo ? GAME_PART.WATER : GAME_PART.CODE);
   vm.change_part(part, 0);
-};
+}
 
 function prev_part() {
   let { part } = vm.get_state();
-  part = Math.max(part - 1, isDemo ? GAME_PART.INTRODUCTION : GAME_PART.PROTECTION);
+  part = Math.max(
+    part - 1,
+    isDemo ? GAME_PART.INTRODUCTION : GAME_PART.PROTECTION
+  );
   vm.change_part(part, 0);
-};
+}
 
 export function set_cheats(value: boolean) {
   if (value) console.log('Cheats enabled!');
@@ -147,7 +149,6 @@ export function set_cheats(value: boolean) {
 let prevInputs: boolean[] = new Array(16).fill(false);
 
 function processSpecialInputs() {
-  controls.pollGamepads();
   const inputs = controls.getInputs();
 
   const inputUp = inputs.map((v, i) => !v && prevInputs[i]);

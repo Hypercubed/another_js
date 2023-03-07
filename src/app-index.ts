@@ -1,26 +1,40 @@
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-// @ts-ignore
-import { default as gameControl } from 'gamecontroller.js/src/gamecontrol.js';
+// // @ts-ignore
+// import { default as gameControl } from 'gamecontroller.js/src/gamecontrol.js';
+// import nipplejs from 'nipplejs';
 
-import { init } from './another/resources';
+import * as resources from './another/resources';
 
-import {router, ROUTES } from './app-router';
+import { router, ROUTES } from './app-router';
 
 import './pages/app-menu';
 import './pages/app-game';
 import './pages/app-help';
 import './styles/global.scss';
+
+import {
+  controlUp,
+  disableGampadControls,
+  disableKeyboardControls,
+  disableTouchControls,
+  enableGampadControls,
+  enableKeyboardControls,
+  enableTouchControls,
+} from './app-controls';
+import { KEY_CODE } from './another/vm/controls';
 import { Router } from '@vaadin/router';
 import { engine } from './another/vm';
-import { CHEAT_CODE } from './another/vm/constants';
 
-init();
+resources.init();
+
+const CHEAT_CODE = '00223131';
 
 @customElement('app-index')
 export class AppIndex extends LitElement {
   private audioElm!: HTMLAudioElement;
+  private controlUpBinding: any;
   private keyCodeHistory: string[] = [];
 
   get inGame() {
@@ -31,51 +45,49 @@ export class AppIndex extends LitElement {
     return this;
   }
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    document.addEventListener('keyup', this.onKeypress as any);
-
-    gameControl.on('connect', (gamepad: any) => {
-      gamepad.after('up', () => {
-        if (this.inGame) return;
-        this.addCodeKey('U');
-        this.focusPrevious();
-      });
-      gamepad.after('down', () => {
-        if (this.inGame) return;
-        this.addCodeKey('D');
-        this.focusNext();
-      });
-      gamepad.after('left', () => {
-        if (this.inGame) return;
-        this.addCodeKey('L');
-        // this.focusPrevious();
-      });
-      gamepad.after('right', () => {
-        if (this.inGame) return;
-        this.addCodeKey('R');
-        // this.focusNext();
-      });
-      gamepad.after('button0', () => {
-        if (this.inGame) return;
-        this.addCodeKey('A');
-        this.onEnter();
-      });
-      gamepad.after('button1', () => {
-        if (this.inGame) return;
-        this.addCodeKey('B');
-        this.onEscape();
-      });
-
-      gamepad.after('button16', () => this.onEscape());
-    });
-  }
-
   disconnectedCallback() {
-    document.removeEventListener('keyup', this.onKeypress as any);
+    super.disconnectedCallback();
+    disableKeyboardControls();
+    disableGampadControls();
+    disableTouchControls();
+
+    this.controlUpBinding.detach();
   }
 
   firstUpdated() {
+    enableTouchControls();
+    enableKeyboardControls();
+    enableGampadControls();
+
+    this.controlUpBinding = controlUp.add((code: KEY_CODE) => {
+      this.addCodeKey(String(code));
+
+      switch (code) {
+        case KEY_CODE.ACTION:
+          this.onEnter();
+          break;
+        case KEY_CODE.UP:
+          this.focusPrevious();
+          break;
+        case KEY_CODE.DOWN:
+          this.focusNext();
+          break;
+        // case KEY_CODE.LEFT:
+        //   focusPrevious();
+        //   break;
+        // case KEY_CODE.RIGHT:
+        //   focusNext();
+        //   break;
+        case KEY_CODE.JUMP:
+          if (this.inGame) return;
+          this.onEscape();
+          break;
+        case KEY_CODE.EXIT:
+          this.onEscape();
+          break;
+      }
+    });
+
     this.audioElm = document.querySelector('#audio') as HTMLAudioElement;
 
     const outlet = document.querySelector('#app-index__main-container');
@@ -104,10 +116,15 @@ export class AppIndex extends LitElement {
 
   render() {
     return html`
-      <div @dblclick=${() => this.onFullscreen()}>
+      <div
+        @dblclick=${() => this.onFullscreen()}
+        @touchstart="${() => this.setupTouchControls()}"
+      >
         <main>
-          <div id="app-index__main-container">
-          </div>
+          <div id="app-index__main-container"></div>
+          <div class="touch_zone touch_zone--bottom-left"></div>
+          <div class="touch_zone touch_zone--bottom-right"></div>
+          <div class="touch_zone touch_zone--top-right"></div>
         </main>
         <audio id="audio" autoplay>
           <source src="./assets/Another World.mp3" type="audio/mpeg" />
@@ -117,7 +134,7 @@ export class AppIndex extends LitElement {
   }
 
   onFullscreen() {
-    fullscreen(this.querySelector('#app-index__main-container'));
+    fullscreen(this.querySelector('main'));
   }
 
   onEscape() {
@@ -141,55 +158,28 @@ export class AppIndex extends LitElement {
     }
   }
 
-  onKeypress = (e: KeyboardEvent) => {
-    // console.log(e.key);
-
-    switch (e.key) {
-      case 'Enter':
-      case ' ':
-        if (this.inGame) return;
-        this.onEnter();
-        break;
-      case 'ArrowUp':
-        if (this.inGame) return;
-        this.addCodeKey('U');
-        this.focusPrevious();
-        break;
-      case 'ArrowDown':
-        if (this.inGame) return;
-        this.addCodeKey('D');
-        this.focusNext();
-        break;
-      case 'ArrowLeft':
-        if (this.inGame) return;
-        this.addCodeKey('L');
-        this.focusPrevious();
-        break;
-      case 'ArrowRight':
-        if (this.inGame) return;
-        this.addCodeKey('R');
-        this.focusNext();
-        break;
-      case 'Escape':
-        this.onEscape();
-        break;
-    }
-  }
-
   private focusFirst() {
-    if (this.inGame) return;
-    this.focusableItems[0]?.focus();
+    const focusableItems = Array.from(
+      this.querySelectorAll('a, button')
+    ) as HTMLElement[];
+    focusableItems[0]?.focus();
   }
 
   private focusNext() {
     if (this.inGame) return;
-    const index = mod(this.getFocusedElementIndex() + 1, this.focusableItems.length);
+    const index = mod(
+      this.getFocusedElementIndex() + 1,
+      this.focusableItems.length
+    );
     this.focusableItems[index]?.focus();
   }
 
   private focusPrevious() {
     if (this.inGame) return;
-    const index = mod(this.getFocusedElementIndex() - 1, this.focusableItems.length);
+    const index = mod(
+      this.getFocusedElementIndex() - 1,
+      this.focusableItems.length
+    );
     this.focusableItems[index]?.focus();
   }
 

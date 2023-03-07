@@ -31,7 +31,7 @@ main {
   display: none;
 }
 
-@mixin  viewport-ratio($x, $y) {
+@mixin viewport-ratio($x, $y) {
   position: absolute;
   width: 100vw;
   height: calc($y / $x) * 100vw;
@@ -99,7 +99,8 @@ main {
       background-color: rgba(0, 0, 0, 0.7);
       box-shadow: 0.1em 0.1em 0 0 rgba(0, 0, 0, 0.4);
 
-      &:hover, &:focus-visible {
+      &:hover,
+      &:focus-visible {
         outline: 3px solid white;
         box-shadow: 0 0 0.2em 0 rgba(0, 0, 0, 0.8);
       }
@@ -130,14 +131,16 @@ main {
   }
 }
 
-#app-index__help-container, #app-index__credits-container {
+#app-index__help-container,
+#app-index__credits-container {
   color: black;
   font-size: min(3vh, 2vw);
   font-weight: bold;
   line-height: 1.5;
   text-align: left;
 
-  .app-index__help, .app-index__credits {
+  .app-index__help,
+  .app-index__credits {
     position: relative;
     top: 45%;
     left: 45%;
@@ -149,7 +152,8 @@ main {
       outline-offset: 0.4em;
     }
 
-    th, td {
+    th,
+    td {
       padding: 0.2em 0.75em;
     }
 
@@ -202,9 +206,10 @@ kbd.gamepad {
 }
 
 .touch_zone {
+  display: none;
   position: absolute;
-  width: 50%;
-  height: 50%;
+  width: min(250px, 25%);
+  height: min(250px, 25%);
 
   &.touch_zone--bottom-left {
     left: 0;
@@ -221,9 +226,9 @@ kbd.gamepad {
     top: 0;
   }
 
-  &.touch_zone--bottom-left {
+  &.touch_zone--top-right {
     right: 0;
-    bottom: 0;
+    top: 0;
   }
 }
 
