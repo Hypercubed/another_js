@@ -1,17 +1,54 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import MiniSignal from 'mini-signals';
+import { enableMenuControls } from '../app-controls';
 
 import { router } from '../app-router';
+import { styles } from '../styles/shared';
 
 @customElement('app-menu')
 export class AppMenu extends LitElement {
-  createRenderRoot() {
-    return this;
+  static get styles() {
+    return [
+      styles,
+      css`
+      #menu-container {
+        background-image: url('/assets/another_world.title.jpg');
+        background-size: cover;
+      }
+
+      .menu-container__menu {
+        position: relative;
+        top: 45%;
+        left: 50%;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+
+      li a {
+        font-size: min(3vh, 3vw);
+        width: 30%;
+        padding: 0.2em 0.4em;
+      }
+      `
+    ];
+  }
+
+  menuBindings?: MiniSignal.MiniSignalBinding;
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.menuBindings = enableMenuControls(this.shadowRoot!);
+  }
+
+  disconnectedCallback(): void {
+    this.menuBindings?.detach();
   }
 
   render() {
     return html`
-      <div id="menu-container" class="sixteen-ten">
+      <div id="menu-container" class="container sixteen-ten">
         <ul class="menu-container__menu">
           <li>
             <a

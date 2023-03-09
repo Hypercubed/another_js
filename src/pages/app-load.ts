@@ -1,21 +1,54 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import * as resources from '../another/resources';
+import { MiniSignalBinding } from 'mini-signals';
+
 import { router } from '../app-router';
+import { styles } from '../styles/shared';
+
+import * as resources from '../another/resources';
 import { engine } from '../another/vm';
 import { cheatChanged, codeSeen } from '../another/vm/events';
-import { MiniSignalBinding } from 'mini-signals';
+import { enableMenuControls } from '../app-controls';
 
 const seenCodes = new Set<string>();
 
 @customElement('app-load')
 export class AppLoad extends LitElement {
-  cheatChangedBinding: MiniSignalBinding | undefined;
-  codeSeenBinding: MiniSignalBinding | undefined;
+  static get styles() {
+    return [
+      styles,
+      css`
+        #load-container {
+          background-image: url('/assets/another_world.computer.jpg');
+          background-size: cover;
+        }
+
+        .load-container__menu {
+          position: relative;
+          display: block;
+          margin: 0 auto;
+          top: 20%;
+          list-style-type: none;
+          text-align: center;
+        }
+
+        li a {
+          width: 50%;
+        }
+      `
+    ];
+  }
+
+  menuBindings?: MiniSignalBinding;
+  cheatChangedBinding?: MiniSignalBinding;
+  codeSeenBinding?: MiniSignalBinding;
 
   connectedCallback(): void {
     super.connectedCallback();
+
+    this.menuBindings = enableMenuControls(this.shadowRoot!);
+
     this.cheatChangedBinding = cheatChanged.add(() => this.requestUpdate());
     this.codeSeenBinding = codeSeen.add((code: string) => {
       seenCodes.add(code);
@@ -31,10 +64,7 @@ export class AppLoad extends LitElement {
     super.disconnectedCallback();
     this.cheatChangedBinding?.detach();
     this.codeSeenBinding?.detach();
-  }
-
-  createRenderRoot() {
-    return this;
+    this.menuBindings?.detach();
   }
 
   render() {
@@ -43,7 +73,7 @@ export class AppLoad extends LitElement {
       positions = positions.filter((r, i) => i === 0 || seenCodes.has(r.code));
 
     return html`
-    <div id="load-container" class="sixteen-ten">
+    <div id="load-container" class="container sixteen-ten">
       <a class="app-index__button" tabindex="0"
         data-route="/"
         href="${router.urlForPath('/')}"><< Back</a>

@@ -1,16 +1,56 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { MiniSignalBinding } from 'mini-signals';
+import { enableMenuControls } from '../app-controls';
+
 import { router } from '../app-router';
+import { styles } from '../styles/shared';
 
 @customElement('app-credits')
 export class AppCredits extends LitElement {
-  createRenderRoot() {
-    return this;
+  static get styles() {
+    return [
+      styles,
+      css`
+        .credits-container__credits {
+          position: relative;
+          left: 0;
+          top: 20%;
+          width: 100%;
+          color: white;
+          text-shadow: none;
+          line-height: 3em;
+
+          font-size: min(3vh, 2vw);
+          font-family: 'Press Start 2P', monospace;
+        }
+
+        tr th:first-child {
+          text-align: right;
+        }
+
+        tr td:nth-child(2) {
+          text-align: right;
+          padding: 0 0.5em;
+        }
+      `
+    ];
+  }
+
+  menuBindings?: MiniSignalBinding;
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.menuBindings = enableMenuControls(this.shadowRoot!);
+  }
+
+  disconnectedCallback(): void {
+    this.menuBindings?.detach();
   }
 
   render() {
     return html`
-    <div id="credits-container" class="sixteen-ten">
+    <div id="credits-container" class="container sixteen-ten">
       <a class="app-index__button" tabindex="0"
         data-route="/"
         href="${router.urlForPath('/')}"><< Back</a>

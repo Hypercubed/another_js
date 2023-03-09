@@ -6,6 +6,7 @@ import { default as gameControl } from 'gamecontroller.js/src/gamecontrol.js';
 import MiniSignal from 'mini-signals';
 
 import nipplejs from 'nipplejs';
+import { engine } from './another/vm';
 
 import { KEY_CODE } from './another/vm/controls';
 
@@ -21,6 +22,7 @@ const KEY_BINDING: Record<string, KEY_CODE> = {
   'r': KEY_CODE.RESET,
   'p': KEY_CODE.PAUSE,
   'c': KEY_CODE.CODE_SCREEN,
+  'Escape': KEY_CODE.EXIT
 };
 
 const GAMEPAD_BINDING: Record<string, KEY_CODE> = {
@@ -217,4 +219,103 @@ export function disableTouchControls() {
   touch_manager?.destroy();
   buttonA?.destroy();
   buttonB?.destroy();
+}
+
+// MENU CONTROLS
+export function enableMenuControls(root: ShadowRoot | Document) {
+  return controlUp.add((code: KEY_CODE) => {
+    switch (code) {
+      case KEY_CODE.ACTION:
+        onEnter();
+        break;
+      case KEY_CODE.UP:
+      case KEY_CODE.LEFT:
+        focusPrevious();
+        break;
+      case KEY_CODE.DOWN:
+      case KEY_CODE.RIGHT:
+        focusNext();
+        break;
+      case KEY_CODE.JUMP:
+        onEscape();
+        break;
+      case KEY_CODE.EXIT:
+        onEscape();
+        break;
+    }
+  });
+
+  function onEnter() {
+    const el = root.activeElement;
+    const route = el?.getAttribute('data-route');
+
+    if (route) {
+      Router.go(route);
+      return;
+    }
+
+    const href = el?.getAttribute('href');
+    if (href) {
+      window.location.href = href;
+    }
+  }
+
+  function onEscape() {
+    console.log('onEscape');
+    Router.go('/');
+  }
+
+  // function focusFirst() {
+  //   const focusableItems = getFocusableItems();
+  //   focusableItems[0]?.focus();
+  // }
+
+  function focusNext() {
+    const focusableItems = getFocusableItems();
+
+    const index = mod(
+      getFocusedElementIndex() + 1,
+      focusableItems.length
+    );
+    focusableItems[index]?.focus();
+  }
+
+  function focusPrevious() {
+    const focusableItems = getFocusableItems();
+
+    const index = mod(
+      getFocusedElementIndex() - 1,
+      focusableItems.length
+    );
+    focusableItems[index]?.focus();
+  }
+
+  function getFocusableItems(): HTMLElement[] {
+    return Array.from(root.querySelectorAll('a, button')!);
+  }
+
+  function getFocusedElementIndex() {
+    return getFocusableItems().findIndex((item) => item === root.activeElement);
+  }
+}
+
+function mod(n: number, m: number): number {
+  return ((n % m) + m) % m;
+}
+
+// CHEATS
+
+const CHEAT_CODE = '00223131';
+let keyCodeHistory: string[] = [];
+
+export function watchForCheatCode() {
+  return controlUp.add((code: KEY_CODE) => {
+    const key = code.toString();
+    keyCodeHistory.push(key);
+    keyCodeHistory = keyCodeHistory.slice(-CHEAT_CODE.length);
+    const str = keyCodeHistory.join('');
+    if (str === CHEAT_CODE) {
+      engine.set_cheats(true);
+    }
+  });
 }

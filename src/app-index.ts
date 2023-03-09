@@ -1,9 +1,5 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
-
-// // @ts-ignore
-// import { default as gameControl } from 'gamecontroller.js/src/gamecontrol.js';
-// import nipplejs from 'nipplejs';
 
 import * as resources from './another/resources';
 
@@ -14,89 +10,95 @@ import './pages/app-game';
 import './pages/app-help';
 import './styles/global.scss';
 
+import { styles } from './styles/shared';
+
 import {
-  controlUp,
   disableGampadControls,
   disableKeyboardControls,
   enableGampadControls,
   enableKeyboardControls,
+  watchForCheatCode,
 } from './app-controls';
-import { KEY_CODE } from './another/vm/controls';
-import { Router } from '@vaadin/router';
-import { engine } from './another/vm';
-
-resources.init();
-
-const CHEAT_CODE = '00223131';
 
 @customElement('app-index')
 export class AppIndex extends LitElement {
-  private controlUpBinding: any;
-  private keyCodeHistory: string[] = [];
+  static get styles() {
+    return [
+      styles,
+      css`
+
+        main {
+          width: 100vw;
+          height: 100vh;
+          overflow: clip;
+        }
+
+        #routerOutlet > .leaving {
+          animation: 0.3s fadeOut ease-in-out;
+        }
+
+        #routerOutlet > .entering {
+          animation: 0.3s fadeIn linear;
+        }
+
+        @keyframes fadeOut {
+          from {
+            opacity: 1;
+          }
+
+          to {
+            opacity: 0;
+          }
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+
+          to {
+            opacity: 1;
+          }
+        }
+      `
+    ];
+  }
 
   get inGame() {
     return router.location.pathname === '/game';
   }
 
-  createRenderRoot() {
-    return this;
+  connectedCallback(): void {
+    super.connectedCallback();
+    resources.init();
+    enableKeyboardControls();
+    enableGampadControls();
+
+    watchForCheatCode();
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     disableKeyboardControls();
     disableGampadControls();
-
-    this.controlUpBinding.detach();
   }
 
   firstUpdated() {
-    enableKeyboardControls();
-    enableGampadControls();
+    const audioElm: HTMLAudioElement = this.shadowRoot?.querySelector('#audio')!;
 
-    this.controlUpBinding = controlUp.add((code: KEY_CODE) => {
-      this.addCodeKey(String(code));
+    const outlet: Element = this.shadowRoot?.querySelector('#routerOutlet')!;
 
-      switch (code) {
-        case KEY_CODE.ACTION:
-          this.onEnter();
-          break;
-        case KEY_CODE.UP:
-          this.focusPrevious();
-          break;
-        case KEY_CODE.DOWN:
-          this.focusNext();
-          break;
-        // case KEY_CODE.LEFT:
-        //   focusPrevious();
-        //   break;
-        // case KEY_CODE.RIGHT:
-        //   focusNext();
-        //   break;
-        case KEY_CODE.JUMP:
-          if (this.inGame) return;
-          this.onEscape();
-          break;
-        case KEY_CODE.EXIT:
-          this.onEscape();
-          break;
-      }
-    });
-
-    const outlet = document.querySelector('#app-index__main-container');
-
-    router.setOutlet(outlet);
+    router.setOutlet(outlet!);
     router.setRoutes(ROUTES);
 
     window.addEventListener('vaadin-router-location-changed', () => {
-      setTimeout(() => {
-        this.focusFirst();
-      }, 200);
+      if (this.inGame) {
+        audioElm.pause();
+        audioElm.currentTime = 0;
+      } else {
+        audioElm.play();
+      }
     });
-
-    setTimeout(() => {
-      this.focusFirst();
-    }, 200);
   }
 
   render() {
@@ -105,10 +107,7 @@ export class AppIndex extends LitElement {
         @dblclick=${() => this.onFullscreen()}
       >
         <main>
-          <div id="app-index__main-container" class="sixteen-ten"></div>
-          <div class="touch_zone touch_zone--bottom-left"></div>
-          <div class="touch_zone touch_zone--bottom-right"></div>
-          <div class="touch_zone touch_zone--top-right"></div>
+          <div id="routerOutlet" class="sixteen-ten"></div>
         </main>
         <audio id="audio" autoplay>
           <source src="./assets/another_world.mp3" type="audio/mpeg" />
@@ -118,78 +117,8 @@ export class AppIndex extends LitElement {
   }
 
   onFullscreen() {
-    fullscreen(this.querySelector('main'));
+    fullscreen(this.shadowRoot?.querySelector('main'));
   }
-
-  onEscape() {
-    Router.go('/');
-  }
-
-  onEnter() {
-    if (this.inGame) return;
-
-    const el = document.activeElement;
-    const route = el?.getAttribute('data-route');
-
-    if (route) {
-      Router.go(route);
-      return;
-    }
-
-    const href = el?.getAttribute('href');
-    if (href) {
-      window.location.href = href;
-    }
-  }
-
-  private focusFirst() {
-    const focusableItems = Array.from(
-      this.querySelectorAll('a, button')
-    ) as HTMLElement[];
-    focusableItems[0]?.focus();
-  }
-
-  private focusNext() {
-    if (this.inGame) return;
-    const index = mod(
-      this.getFocusedElementIndex() + 1,
-      this.focusableItems.length
-    );
-    this.focusableItems[index]?.focus();
-  }
-
-  private focusPrevious() {
-    if (this.inGame) return;
-    const index = mod(
-      this.getFocusedElementIndex() - 1,
-      this.focusableItems.length
-    );
-    this.focusableItems[index]?.focus();
-  }
-
-  private get focusableItems(): HTMLElement[] {
-    return Array.from(this.querySelectorAll('a, button'));
-  }
-
-  private getFocusedElementIndex() {
-    return this.focusableItems.findIndex(
-      (item) => item === document.activeElement
-    );
-  }
-
-  private addCodeKey(key: string) {
-    this.keyCodeHistory.push(key);
-    this.keyCodeHistory = this.keyCodeHistory.slice(-CHEAT_CODE.length);
-    const str = this.keyCodeHistory.join('');
-    if (str === CHEAT_CODE) {
-      engine.set_cheats(true);
-      this.requestUpdate();
-    }
-  }
-}
-
-function mod(n: number, m: number): number {
-  return ((n % m) + m) % m;
 }
 
 const FULLSCREEN = [
