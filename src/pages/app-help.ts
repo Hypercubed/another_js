@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { router } from '../app-router';
 
 @customElement('app-help')
 export class AppHelp extends LitElement {
@@ -9,8 +10,11 @@ export class AppHelp extends LitElement {
 
   render() {
     return html`
-      <div id="app-index__help-container">
-        <table class="app-index__help">
+      <div id="help-container" class="sixteen-ten">
+        <a class="app-index__button" tabindex="0"
+          data-route="/"
+          href="${router.urlForPath('/')}"><< Back</a>
+        <table class="help-container__help">
           <tr>
             <th></th>
             <th>Keyboard</th>

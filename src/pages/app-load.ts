@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { RestartPoint, restartPositions } from '../another/resources';
+import * as resources from '../another/resources';
 import { router } from '../app-router';
 import { engine } from '../another/vm';
 import { cheatChanged, codeSeen } from '../another/vm/events';
@@ -21,6 +21,10 @@ export class AppLoad extends LitElement {
       seenCodes.add(code);
       this.requestUpdate();
     });
+
+    resources.init().then(() => {
+      this.requestUpdate();
+    });
   }
 
   disconnectedCallback() {
@@ -34,24 +38,28 @@ export class AppLoad extends LitElement {
   }
 
   render() {
-    let positions = restartPositions;
+    let positions = resources.restartPositions || [];
     if (!engine.cheats_enabled)
       positions = positions.filter((r, i) => i === 0 || seenCodes.has(r.code));
 
     return html`
-    <div id="app-index__menu-container">
-      <ul class="app-index__menu app-index__menu--small">
+    <div id="load-container" class="sixteen-ten">
+      <a class="app-index__button" tabindex="0"
+        data-route="/"
+        href="${router.urlForPath('/')}"><< Back</a>
+      <ul class="load-container__menu load-container__menu--small">
         ${positions.map((r) => this.renderItem(r))}
       </div>
     </div>
     `;
   }
 
-  renderItem(r: RestartPoint) {
+  renderItem(r: resources.RestartPoint) {
     const part = r.code ? '?code=' + r.code : '';
     const label = r.code ? `${r.name} (${r.code})` : r.name;
     return html`<li>
       <a
+        class="app-index__button"
         data-route="game${part}"
         href="${router.urlForPath('/game') + part}"
         tabindex="0"

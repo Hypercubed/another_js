@@ -18,10 +18,8 @@ import {
   controlUp,
   disableGampadControls,
   disableKeyboardControls,
-  disableTouchControls,
   enableGampadControls,
   enableKeyboardControls,
-  enableTouchControls,
 } from './app-controls';
 import { KEY_CODE } from './another/vm/controls';
 import { Router } from '@vaadin/router';
@@ -33,7 +31,6 @@ const CHEAT_CODE = '00223131';
 
 @customElement('app-index')
 export class AppIndex extends LitElement {
-  private audioElm!: HTMLAudioElement;
   private controlUpBinding: any;
   private keyCodeHistory: string[] = [];
 
@@ -49,13 +46,11 @@ export class AppIndex extends LitElement {
     super.disconnectedCallback();
     disableKeyboardControls();
     disableGampadControls();
-    disableTouchControls();
 
     this.controlUpBinding.detach();
   }
 
   firstUpdated() {
-    enableTouchControls();
     enableKeyboardControls();
     enableGampadControls();
 
@@ -88,22 +83,12 @@ export class AppIndex extends LitElement {
       }
     });
 
-    this.audioElm = document.querySelector('#audio') as HTMLAudioElement;
-
     const outlet = document.querySelector('#app-index__main-container');
 
     router.setOutlet(outlet);
     router.setRoutes(ROUTES);
 
-    window.addEventListener('vaadin-router-location-changed', (event) => {
-      this.audioElm.pause();
-      if (event.detail.location.pathname === '/game') {
-        this.audioElm.pause();
-      } else {
-        this.focusFirst();
-        this.audioElm.play();
-      }
-
+    window.addEventListener('vaadin-router-location-changed', () => {
       setTimeout(() => {
         this.focusFirst();
       }, 200);
@@ -118,16 +103,15 @@ export class AppIndex extends LitElement {
     return html`
       <div
         @dblclick=${() => this.onFullscreen()}
-        @touchstart="${() => this.setupTouchControls()}"
       >
         <main>
-          <div id="app-index__main-container"></div>
+          <div id="app-index__main-container" class="sixteen-ten"></div>
           <div class="touch_zone touch_zone--bottom-left"></div>
           <div class="touch_zone touch_zone--bottom-right"></div>
           <div class="touch_zone touch_zone--top-right"></div>
         </main>
         <audio id="audio" autoplay>
-          <source src="./assets/Another World.mp3" type="audio/mpeg" />
+          <source src="./assets/another_world.mp3" type="audio/mpeg" />
         </audio>
       </div>
     `;

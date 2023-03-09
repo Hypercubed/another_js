@@ -1,13 +1,14 @@
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import { Router } from '@vaadin/router';
 
 import { controls, engine, vm } from '../another/vm';
 import { SCREEN_H, SCREEN_W } from '../another/vm/constants';
-import { restartPositions } from '../another/resources';
+import * as resources from '../another/resources';
+
 import {
   controlDown,
   controlUp,
+  disableTouchControls,
   enableGampadControls,
   enableKeyboardControls,
   enableTouchControls,
@@ -16,14 +17,26 @@ import { KEY_CODE } from '../another/vm/controls';
 
 @customElement('app-game')
 export class AppGame extends LitElement {
-  controlDownBinding: any;
-  controlUpBinding: any;
+  private audioElm!: HTMLAudioElement;
+
+  private controlDownBinding: any;
+  private controlUpBinding: any;
 
   createRenderRoot() {
     return this;
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    resources.init().then(() => {
+      this.requestUpdate();
+    });
+  }
+
   firstUpdated() {
+    this.audioElm = document.querySelector('#audio') as HTMLAudioElement;
+    this.audioElm && this.audioElm.pause();
+
     enableTouchControls();
     enableKeyboardControls();
     enableGampadControls();
@@ -34,23 +47,23 @@ export class AppGame extends LitElement {
       controls.set_key_pressed(code, false);
     });
 
-    this.onStart();
-  }
-
-  connectedCallback(): void {
-    super.connectedCallback();
+    resources.init().then(() => {
+      this.onStart();
+    });
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    disableTouchControls();
     this.controlDownBinding.detach();
     this.controlUpBinding.detach();
     this.onStop();
+    this.audioElm && this.audioElm.play();
   }
 
   render() {
     return html`
-      <div id="app-index__canvas-container">
+      <div id="game-container" class="sixteen-ten" @touchstart="${enableTouchControls}">
         <canvas id="screen" width="${SCREEN_W}" height="${SCREEN_H}"></canvas>
       </div>
     `;
@@ -64,7 +77,7 @@ export class AppGame extends LitElement {
 
     const code = params.get('code');
     if (code) {
-      const position = restartPositions.find((p) => p.code === code);
+      const position = resources.restartPositions.find((p) => p.code === code);
       if (position) {
         vm.change_part(position.part, position.offset || undefined);
       }
