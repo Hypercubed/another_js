@@ -12,69 +12,68 @@ export class AppHelp extends LitElement {
     return [
       styles,
       css`
-      #help-container {
-        background-image: url('/assets/another_world.help.jpg');
-        background-size: cover;
-      }
+        #help-container {
+          background-image: url('/assets/another_world.help.jpg');
+          background-size: cover;
+        }
 
-      .help-container__help {
-        position: relative;
-        margin: 0 auto;
-        top: 30%;
-        text-shadow: 2px 2px 2px #5f5f5f;
-        margin: 0 auto;
-        color: white;
-        font-size: min(4vh, 4vw);
-      }
+        .help-container__help {
+          position: relative;
+          margin: 0 auto;
+          top: 30%;
+          text-shadow: 2px 2px 2px #5f5f5f;
+          margin: 0 auto;
+          color: white;
+          font-size: min(4vh, 4vw);
+        }
 
-      table a {
-        outline-offset: 0.4em;
-      }
+        table a {
+          outline-offset: 0.4em;
+        }
 
-      th,
-      td {
-        padding: 0.2em 0.75em;
-      }
+        th,
+        td {
+          padding: 0.2em 0.75em;
+        }
 
-      td {
-        font-weight: bold;
-      }
+        td {
+          font-weight: bold;
+        }
 
-      th {
-        font-weight: bolder;
-      }
+        th {
+          font-weight: bolder;
+        }
 
-      big {
-        font-size: 1.5em;
-        font-weight: bold;
-        font-style: italic;
-      }
+        big {
+          font-size: 1.5em;
+          font-weight: bold;
+          font-style: italic;
+        }
 
-      kbd {
-        border: 1px solid black;
-        border-radius: 0.2em;
-        padding: 0.2em 0.4em;
-        margin: 0.1em;
-        background-color: rgba(#fff, 0.3);
-      }
+        kbd {
+          border: 1px solid black;
+          border-radius: 0.2em;
+          padding: 0.2em 0.4em;
+          margin: 0.1em;
+          background-color: rgba(#fff, 0.3);
+        }
 
-      kbd.gamepad {
-        display: inline-block;
-        border-radius: 50%;
-        width: 1.5em;
-        height: 1.5em;
-        padding: 0;
-        border: 1px solid #000;
-        text-align: center;
-      }
-      `
+        kbd.gamepad {
+          display: inline-block;
+          border-radius: 50%;
+          width: 1.5em;
+          height: 1.5em;
+          padding: 0;
+          border: 1px solid #000;
+          text-align: center;
+        }
+      `,
     ];
   }
 
   menuBindings?: MiniSignalBinding;
 
-  connectedCallback(): void {
-    super.connectedCallback();
+  firstUpdated(): void {
     this.menuBindings = enableMenuControls(this.shadowRoot!);
   }
 
@@ -85,9 +84,13 @@ export class AppHelp extends LitElement {
   render() {
     return html`
       <div id="help-container" class="container sixteen-ten">
-        <a class="app-index__button" tabindex="0"
+        <a
+          class="app-index__button"
+          tabindex="0"
           data-route="/"
-          href="${router.urlForPath('/')}"><< Back</a>
+          href="${router.urlForPath('/')}"
+          ><< Back</a
+        >
         <table class="help-container__help">
           <tr>
             <th></th>

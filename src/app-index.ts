@@ -26,7 +26,6 @@ export class AppIndex extends LitElement {
     return [
       styles,
       css`
-
         main {
           width: 100vw;
           height: 100vh;
@@ -60,7 +59,7 @@ export class AppIndex extends LitElement {
             opacity: 1;
           }
         }
-      `
+      `,
     ];
   }
 
@@ -84,7 +83,8 @@ export class AppIndex extends LitElement {
   }
 
   firstUpdated() {
-    const audioElm: HTMLAudioElement = this.shadowRoot?.querySelector('#audio')!;
+    const audioElm: HTMLAudioElement =
+      this.shadowRoot?.querySelector('#audio')!;
 
     const outlet: Element = this.shadowRoot?.querySelector('#routerOutlet')!;
 
@@ -103,9 +103,7 @@ export class AppIndex extends LitElement {
 
   render() {
     return html`
-      <div
-        @dblclick=${() => this.onFullscreen()}
-      >
+      <div @dblclick=${() => this.onFullscreen()}>
         <main>
           <div id="routerOutlet" class="sixteen-ten"></div>
         </main>

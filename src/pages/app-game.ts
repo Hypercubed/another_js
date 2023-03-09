@@ -27,7 +27,7 @@ export class AppGame extends LitElement {
           width: 100%;
           height: 100%;
         }
-      `
+      `,
     ];
   }
 
@@ -75,14 +75,20 @@ export class AppGame extends LitElement {
 
   render() {
     return html`
-      <div id="game-container" class="container sixteen-ten" @touchstart="${enableTouchControls}">
+      <div
+        id="game-container"
+        class="container sixteen-ten"
+        @touchstart="${enableTouchControls}"
+      >
         <canvas id="screen" width="${SCREEN_W}" height="${SCREEN_H}"></canvas>
       </div>
     `;
   }
 
   async onStart() {
-    const canvas = this.shadowRoot?.querySelector('#screen') as HTMLCanvasElement;
+    const canvas = this.shadowRoot?.querySelector(
+      '#screen'
+    ) as HTMLCanvasElement;
     await engine.start(canvas);
 
     const params = new URL(document.location.toString()).searchParams;

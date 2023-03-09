@@ -36,7 +36,7 @@ export class AppLoad extends LitElement {
         li a {
           width: 50%;
         }
-      `
+      `,
     ];
   }
 
@@ -47,8 +47,6 @@ export class AppLoad extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
 
-    this.menuBindings = enableMenuControls(this.shadowRoot!);
-
     this.cheatChangedBinding = cheatChanged.add(() => this.requestUpdate());
     this.codeSeenBinding = codeSeen.add((code: string) => {
       seenCodes.add(code);
@@ -58,6 +56,10 @@ export class AppLoad extends LitElement {
     resources.init().then(() => {
       this.requestUpdate();
     });
+  }
+
+  firstUpdated(): void {
+    this.menuBindings = enableMenuControls(this.shadowRoot!);
   }
 
   disconnectedCallback() {

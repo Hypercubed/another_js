@@ -33,14 +33,13 @@ export class AppCredits extends LitElement {
           text-align: right;
           padding: 0 0.5em;
         }
-      `
+      `,
     ];
   }
 
   menuBindings?: MiniSignalBinding;
 
-  connectedCallback(): void {
-    super.connectedCallback();
+  firstUpdated(): void {
     this.menuBindings = enableMenuControls(this.shadowRoot!);
   }
 

@@ -12,33 +12,32 @@ export class AppMenu extends LitElement {
     return [
       styles,
       css`
-      #menu-container {
-        background-image: url('/assets/another_world.title.jpg');
-        background-size: cover;
-      }
+        #menu-container {
+          background-image: url('/assets/another_world.title.jpg');
+          background-size: cover;
+        }
 
-      .menu-container__menu {
-        position: relative;
-        top: 45%;
-        left: 50%;
-        margin: 0;
-        padding: 0;
-        list-style-type: none;
-      }
+        .menu-container__menu {
+          position: relative;
+          top: 45%;
+          left: 50%;
+          margin: 0;
+          padding: 0;
+          list-style-type: none;
+        }
 
-      li a {
-        font-size: min(3vh, 3vw);
-        width: 30%;
-        padding: 0.2em 0.4em;
-      }
-      `
+        li a {
+          font-size: min(3vh, 3vw);
+          width: 30%;
+          padding: 0.2em 0.4em;
+        }
+      `,
     ];
   }
 
   menuBindings?: MiniSignal.MiniSignalBinding;
 
-  connectedCallback(): void {
-    super.connectedCallback();
+  firstUpdated(): void {
     this.menuBindings = enableMenuControls(this.shadowRoot!);
   }
 

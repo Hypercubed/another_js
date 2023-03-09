@@ -22,7 +22,7 @@ const KEY_BINDING: Record<string, KEY_CODE> = {
   'r': KEY_CODE.RESET,
   'p': KEY_CODE.PAUSE,
   'c': KEY_CODE.CODE_SCREEN,
-  'Escape': KEY_CODE.EXIT
+  'Escape': KEY_CODE.EXIT,
 };
 
 const GAMEPAD_BINDING: Record<string, KEY_CODE> = {
@@ -223,6 +223,8 @@ export function disableTouchControls() {
 
 // MENU CONTROLS
 export function enableMenuControls(root: ShadowRoot | Document) {
+  focusFirst();
+
   return controlUp.add((code: KEY_CODE) => {
     switch (code) {
       case KEY_CODE.ACTION:
@@ -265,28 +267,22 @@ export function enableMenuControls(root: ShadowRoot | Document) {
     Router.go('/');
   }
 
-  // function focusFirst() {
-  //   const focusableItems = getFocusableItems();
-  //   focusableItems[0]?.focus();
-  // }
+  function focusFirst() {
+    const focusableItems = getFocusableItems();
+    focusableItems[0]?.focus();
+  }
 
   function focusNext() {
     const focusableItems = getFocusableItems();
 
-    const index = mod(
-      getFocusedElementIndex() + 1,
-      focusableItems.length
-    );
+    const index = mod(getFocusedElementIndex() + 1, focusableItems.length);
     focusableItems[index]?.focus();
   }
 
   function focusPrevious() {
     const focusableItems = getFocusableItems();
 
-    const index = mod(
-      getFocusedElementIndex() - 1,
-      focusableItems.length
-    );
+    const index = mod(getFocusedElementIndex() - 1, focusableItems.length);
     focusableItems[index]?.focus();
   }
 
