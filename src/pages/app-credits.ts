@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { MiniSignalBinding } from 'mini-signals';
 import { enableMenuControls } from '../app-controls';
@@ -73,6 +73,8 @@ export class AppCredits extends LitElement {
           <th>PWA, menu & gamepad support</th>
           <td>。。。。</td>
           <td><a href="https://github.com/hypercubed/another_js">@hypercubed</a></td>
+        </tr>
+        <tr>
         </tr>
     </div>
     `;

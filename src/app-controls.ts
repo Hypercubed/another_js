@@ -23,6 +23,8 @@ const KEY_BINDING: Record<string, KEY_CODE> = {
   'p': KEY_CODE.PAUSE,
   'c': KEY_CODE.CODE_SCREEN,
   'Escape': KEY_CODE.EXIT,
+  'y': KEY_CODE.RESOLUTION,
+  'q': KEY_CODE.REWIND
 };
 
 const GAMEPAD_BINDING: Record<string, KEY_CODE> = {
@@ -89,8 +91,7 @@ export function enableGampadControls() {
 
     gamepad = _gamepad;
 
-    console.log('enableGampadControls');
-    // disableTouchControls();
+    disableTouchControls();
 
     for (const [key, value] of Object.entries(GAMEPAD_BINDING)) {
       gamepad.before(key, () => {
@@ -223,8 +224,6 @@ export function disableTouchControls() {
 
 // MENU CONTROLS
 export function enableMenuControls(root: ShadowRoot | Document) {
-  focusFirst();
-
   return controlUp.add((code: KEY_CODE) => {
     switch (code) {
       case KEY_CODE.ACTION:
@@ -267,10 +266,10 @@ export function enableMenuControls(root: ShadowRoot | Document) {
     Router.go('/');
   }
 
-  function focusFirst() {
-    const focusableItems = getFocusableItems();
-    focusableItems[0]?.focus();
-  }
+  // function focusFirst() {
+  //   const focusableItems = getFocusableItems();
+  //   focusableItems[0]?.focus();
+  // }
 
   function focusNext() {
     const focusableItems = getFocusableItems();
@@ -291,7 +290,8 @@ export function enableMenuControls(root: ShadowRoot | Document) {
   }
 
   function getFocusedElementIndex() {
-    return getFocusableItems().findIndex((item) => item === root.activeElement);
+    const focusableItems = getFocusableItems();
+    return focusableItems.findIndex((item) => item === root.activeElement);
   }
 }
 

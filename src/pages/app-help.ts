@@ -1,6 +1,8 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { MiniSignalBinding } from 'mini-signals';
+import { engine } from '../another/vm';
+import { cheatChanged } from '../another/vm/events';
 import { enableMenuControls } from '../app-controls';
 
 import { router } from '../app-router';
@@ -8,6 +10,8 @@ import { styles } from '../styles/shared';
 
 @customElement('app-help')
 export class AppHelp extends LitElement {
+  cheatChangedBinding?: MiniSignalBinding;
+
   static get styles() {
     return [
       styles,
@@ -73,15 +77,29 @@ export class AppHelp extends LitElement {
 
   menuBindings?: MiniSignalBinding;
 
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.cheatChangedBinding = cheatChanged.add(() => this.requestUpdate());
+  }
+
   firstUpdated(): void {
     this.menuBindings = enableMenuControls(this.shadowRoot!);
   }
 
   disconnectedCallback(): void {
     this.menuBindings?.detach();
+    this.cheatChangedBinding?.detach();
   }
 
   render() {
+    const cheatRows = engine.cheats_enabled ? html`
+      <tr>
+        <th>Rewind</th>
+        <td><kbd>Q</kbd></td>
+        <td><kbd class="gamepad">L1</kbd></td>
+      </tr>
+    ` : nothing;
+
     return html`
       <div id="help-container" class="container sixteen-ten">
         <a
@@ -112,6 +130,7 @@ export class AppHelp extends LitElement {
             <td><kbd>Shift</kbd></td>
             <td><kbd class="gamepad">B</kbd></td>
           </tr>
+          ${cheatRows}
         </table>
       </div>
     `;

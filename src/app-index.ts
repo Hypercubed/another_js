@@ -115,7 +115,7 @@ export class AppIndex extends LitElement {
   }
 
   onFullscreen() {
-    fullscreen(this.shadowRoot?.querySelector('main'));
+    fullscreen(document.querySelector('body'));
   }
 }
 
