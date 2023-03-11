@@ -24,7 +24,7 @@ const KEY_BINDING: Record<string, KEY_CODE> = {
   'c': KEY_CODE.CODE_SCREEN,
   'Escape': KEY_CODE.EXIT,
   'y': KEY_CODE.RESOLUTION,
-  'q': KEY_CODE.REWIND
+  'q': KEY_CODE.REWIND,
 };
 
 const GAMEPAD_BINDING: Record<string, KEY_CODE> = {

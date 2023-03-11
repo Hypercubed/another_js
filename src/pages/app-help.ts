@@ -92,13 +92,15 @@ export class AppHelp extends LitElement {
   }
 
   render() {
-    const cheatRows = engine.cheats_enabled ? html`
-      <tr>
-        <th>Rewind</th>
-        <td><kbd>Q</kbd></td>
-        <td><kbd class="gamepad">L1</kbd></td>
-      </tr>
-    ` : nothing;
+    const cheatRows = engine.cheats_enabled
+      ? html`
+          <tr>
+            <th>Rewind</th>
+            <td><kbd>Q</kbd></td>
+            <td><kbd class="gamepad">L1</kbd></td>
+          </tr>
+        `
+      : nothing;
 
     return html`
       <div id="help-container" class="container sixteen-ten">

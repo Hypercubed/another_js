@@ -1,4 +1,4 @@
-import { LitElement, html, css, nothing } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { MiniSignalBinding } from 'mini-signals';
 import { enableMenuControls } from '../app-controls';
