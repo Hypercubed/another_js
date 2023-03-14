@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import MiniSignal from 'mini-signals';
+import { engine } from '../another/vm';
 import { enableMenuControls } from '../app-controls';
 
 import { router } from '../app-router';
@@ -56,7 +57,7 @@ export class AppMenu extends LitElement {
               href="${router.urlForPath('/game')}"
               tabindex="0"
               role="button"
-              >START</a
+              >${engine.paused ? 'CONTINUE' : 'START'}</a
             >
           </li>
           <li>
@@ -67,6 +68,16 @@ export class AppMenu extends LitElement {
               tabindex="0"
               role="button"
               >LOAD</a
+            >
+          </li>
+          <li>
+            <a
+              class="app-index__button"
+              data-route="options"
+              href="${router.urlForPath('/options')}"
+              tabindex="0"
+              role="button"
+              >OPTIONS</a
             >
           </li>
           <li>

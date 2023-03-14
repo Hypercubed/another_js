@@ -11,6 +11,7 @@ import { PAGE_SIZE, SCALE, SCREEN_H, SCREEN_W } from './constants';
 import * as canvas from './canvas';
 import * as palette from './palette';
 import { codeSeen } from './events';
+import { events } from '.';
 
 export const buffer8 = new Uint8Array(4 * PAGE_SIZE);
 
@@ -253,6 +254,9 @@ export function draw_shape(
   x: number,
   y: number
 ) {
+  if (offset === 0x17a0) {
+    events.timerStated.dispatch();
+  }
   const code = data[offset++];
   if (code >= 0xc0) {
     if (color & 0x80) {

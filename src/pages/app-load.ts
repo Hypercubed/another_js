@@ -7,8 +7,7 @@ import { router } from '../app-router';
 import { styles } from '../styles/shared';
 
 import * as resources from '../another/resources';
-import { engine } from '../another/vm';
-import { cheatChanged, codeSeen } from '../another/vm/events';
+import { engine, events } from '../another/vm';
 import { enableMenuControls } from '../app-controls';
 
 const seenCodes = new Set<string>();
@@ -47,8 +46,10 @@ export class AppLoad extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
 
-    this.cheatChangedBinding = cheatChanged.add(() => this.requestUpdate());
-    this.codeSeenBinding = codeSeen.add((code: string) => {
+    this.cheatChangedBinding = events.cheatChanged.add(() =>
+      this.requestUpdate()
+    );
+    this.codeSeenBinding = events.codeSeen.add((code: string) => {
       seenCodes.add(code);
       this.requestUpdate();
     });

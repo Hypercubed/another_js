@@ -13,6 +13,7 @@ import { VAR } from './memory';
 import { KEY_CODE } from './controls';
 
 import type { TaskState } from './memory';
+import { cheats_enabled } from './engine';
 
 export interface State {
   part: number;
@@ -137,7 +138,6 @@ export function run_tasks() {
   }
 
   controls.update_input();
-  // draw_text("Another World JS", 20, 20, 0x0f);
 
   for (let i = 0; i < memory.vmTasks.length; ++i) {
     if (memory.vmTasks[i].state == 0) {
@@ -151,6 +151,10 @@ export function run_tasks() {
         memory.vmTasks[i].offset = bytecode_offset;
       }
     }
+  }
+
+  if (cheats_enabled) {
+    video.draw_text('Cheats Enabled!!', 20, 8, 187);
   }
 }
 

@@ -1,7 +1,7 @@
 import { SCALE, SCREEN_H, SCREEN_W } from './constants';
 import * as palette from './palette';
 
-let is_1991 = false;
+export let is_1991 = false;
 
 let _canvas: HTMLCanvasElement;
 

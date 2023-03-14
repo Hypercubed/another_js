@@ -11,6 +11,7 @@ import { cheatChanged } from './events';
 
 let stats: Stats;
 export let cheats_enabled = false;
+export let stats_enabled = false;
 
 let timer: number | null = null;
 
@@ -23,9 +24,11 @@ const REWIND_SIZE = 50;
 const REWIND_INTERVAL = 1000;
 
 let prevPart: number | null = null;
-let paused = false;
+export let paused = false;
 
 function tick() {
+  cancelAnimationFrame(timer!);
+
   if (!paused) {
     const current = Date.now();
 
@@ -48,24 +51,26 @@ function tick() {
 }
 
 export async function start(canvasElm: HTMLCanvasElement) {
-  stats = new Stats();
-  stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.body.appendChild(stats.dom);
+  if (!timer && !paused) {
+    stats = new Stats();
+    stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(stats.dom);
 
-  rewind_timestamp = Date.now();
-  rewind_buffer.length = 0;
+    if (!stats_enabled) {
+      stats.dom.style.display = 'none';
+    }
 
-  await init();
+    rewind_timestamp = Date.now();
+    rewind_buffer.length = 0;
+
+    await init();
+    await sound.init();
+    vm.reset();
+  }
 
   canvas.init(canvasElm);
-  await sound.init();
-  vm.reset();
-
+  paused = false;
   tick();
-
-  // setInterval(() => {
-  //   vm.draw_text("Another World JS", 20, 20, 0x0f);
-  // }, 1000);
 }
 
 export function stop() {
@@ -79,14 +84,23 @@ export function stop() {
   return true;
 }
 
-function pause() {
-  if (!paused) {
-    paused = true;
-    sound.player?.pause();
-    return true;
+export function pause() {
+  paused = true;
+  sound.player?.pause();
+  cancelAnimationFrame(timer!);
+  return true;
+}
+
+export function togglePause() {
+  if (paused) {
+    paused = false;
+    sound.player?.playMusic();
+    tick();
+    return false;
   }
 
-  paused = false;
+  paused = true;
+  sound.player?.pause();
   return false;
 }
 
@@ -157,7 +171,7 @@ function processSpecialInputs() {
   // TODO: if demo and in part 16002, move to part 16003 on action
 
   if (inputUp[controls.KEY_CODE.PAUSE]) {
-    pause();
+    togglePause();
   }
 
   if (inputUp[controls.KEY_CODE.CODE_SCREEN] && !isDemo) {
@@ -180,15 +194,22 @@ function processSpecialInputs() {
     rewind();
   }
 
-  if (inputUp[controls.KEY_CODE.NEXT_PART] && cheats_enabled) {
-    next_part();
-  }
+  // if (inputUp[controls.KEY_CODE.NEXT_PART] && cheats_enabled) {
+  //   next_part();
+  // }
 
-  if (inputUp[controls.KEY_CODE.PREV_PART] && cheats_enabled) {
-    prev_part();
-  }
+  // if (inputUp[controls.KEY_CODE.PREV_PART] && cheats_enabled) {
+  //   prev_part();
+  // }
 
   if (inputUp[controls.KEY_CODE.RESOLUTION]) {
     canvas.toggle_resolution();
+  }
+}
+
+export function toggle_stats() {
+  stats_enabled = !stats_enabled;
+  if (stats) {
+    stats.dom.style.display = stats_enabled ? 'block' : 'none';
   }
 }

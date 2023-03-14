@@ -83,13 +83,15 @@ function onKeydown(e: KeyboardEvent) {
 // GAMEPAD CONTROLS
 let gamepad: any = null;
 
-export function enableGampadControls() {
+export function enableGamepadControls() {
   if (gamepad) return;
 
   gameControl.on('connect', (_gamepad: any) => {
     if (gamepad) return;
 
     gamepad = _gamepad;
+
+    gamepad.axeThreshold = [0.5, 0.5];
 
     disableTouchControls();
 
@@ -105,7 +107,7 @@ export function enableGampadControls() {
   });
 }
 
-export function disableGampadControls() {
+export function disableGamepadControls() {
   // gameControl.off('connect');
 }
 
@@ -247,22 +249,11 @@ export function enableMenuControls(root: ShadowRoot | Document) {
   });
 
   function onEnter() {
-    const el = root.activeElement;
-    const route = el?.getAttribute('data-route');
-
-    if (route) {
-      Router.go(route);
-      return;
-    }
-
-    const href = el?.getAttribute('href');
-    if (href) {
-      window.location.href = href;
-    }
+    const el = root.activeElement as HTMLElement;
+    el?.click?.();
   }
 
   function onEscape() {
-    console.log('onEscape');
     Router.go('/');
   }
 

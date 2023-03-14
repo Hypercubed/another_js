@@ -51,3 +51,47 @@ a {
     box-shadow: 0 0 0.2em 0 rgba(0, 0, 0, 0.8);
   }
 }
+
+.app-index__toggle {
+  // font-size: min(3vh, 2vw);
+  position: relative;
+  width: 5em;
+  height: 2em;
+  top: 0.5em;
+  background-color: transparent;
+  border-radius: 0.4em;
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding: 0;
+  cursor: pointer;
+  color: white;
+  box-shadow: 0.1em 0.1em 0 0 rgba(0, 0, 0, 0.4);
+  overflow: clip;
+  font-size: 0.8em;
+
+  span {
+    display: block;
+    float: left;
+    height: 100%;
+    width: 50%;
+    padding: 0.2em 0.4em;
+    text-align: center;
+    border-radius: 0;
+    border-top-right-radius: 0.4em;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  &:hover,
+  &:focus-visible {
+    outline: 3px solid white;
+    box-shadow: 0 0 0.2em 0 rgba(0, 0, 0, 0.8);
+  }
+
+  &[data-active='true'] {
+    span {
+      float: right;
+      border-top-right-radius: 0;
+      border-bottom-left-radius: 0.4em;
+    }
+  }
+}

@@ -11,7 +11,7 @@ import {
   controlDown,
   controlUp,
   disableTouchControls,
-  enableGampadControls,
+  enableGamepadControls,
   enableKeyboardControls,
   enableTouchControls,
 } from '../app-controls';
@@ -45,7 +45,7 @@ export class AppGame extends LitElement {
 
   firstUpdated() {
     enableKeyboardControls();
-    enableGampadControls();
+    enableGamepadControls();
 
     this.controlDownBinding = controlDown.add((code: KEY_CODE) => {
       controls.set_key_pressed(code, true);
@@ -103,6 +103,6 @@ export class AppGame extends LitElement {
   }
 
   onStop() {
-    engine.stop();
+    engine.pause();
   }
 }
